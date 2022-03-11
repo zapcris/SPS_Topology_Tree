@@ -1,7 +1,15 @@
 import numpy as np
 from gird import *
 import matplotlib.pyplot as plt
+import networkx as nx
+from networkx.algorithms import tree, SpanningTreeIterator
+import pygraphviz
+import scipy as sp
+import pydot
 
+pos2 = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0), 6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10),
+        10: (17, 19), 11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22), 17: (27, 25), 19: (32, 31),
+        20: (26, 33)}
 Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
                   [1, 2, 7, 3, 5, 6, 8, 9, 13, 15, 19, 20],
                   [1, 5, 8, 6, 3, 2, 4, 10, 15, 17, 20],
@@ -61,24 +69,143 @@ print("Diagnoally prefered sequence", nList_diag)
 np.fill_diagonal(Grid, 99)
 
 di = np.diag_indices_from(Grid)
-print(di)
+# print(di)
 
 # create list to be filled in diagonal of grid matrix
 
 interval = len(Grid.diagonal()) // len(nList_diag)
 
-print(interval)
+# print(interval)
 
 print(len(Grid.diagonal()))
 
 diag_seq = [0 for n in Grid.diagonal()]
 
 for i in range(0, len(Grid.diagonal()), 3):
-    print(i)
+    # print(i)
     diag_seq[i] = 6
 
-# for n in nList_diag:
-#     for i in range(0, len(Grid.diagonal()) , 3):
-#         diag_seq[i] = nList_diag[i]
+# print(diag_seq)
 
-print(diag_seq)
+# Initiliaze the grid map
+grid_map = GridMap(35, 35, 1, 17.5, 17.5)
+
+# grid_map.plot_grid_map()
+
+# Place diagonals workstations on the grid MAP
+for i in range(len(nList_diag)):
+    x = i * interval
+    y = i * interval
+    grid_map.set_value_from_xy_pos(x, y, 1)
+
+    label = f"WK({nList_diag[i]})"
+    # plt.annotate(label,  # this is the text
+    #              (x, y),  # these are the coordinates to position the label
+    #              textcoords="offset points",  # how to position the text
+    #              xytext=(0, 0),  # distance from text to points (x,y)
+    #              ha='left')  # horizontal alignment can be left, right or cente
+
+
+## Minimum Spanninf Tree algorithm
+
+def unique_values_in_list_of_lists(lst):
+    result = set(x for l in lst for x in l)
+    return list(result)
+
+
+node_list = unique_values_in_list_of_lists(Batch_sequence)
+edge_list = []
+for i in range(len(Batch_sequence)):
+    for j in range(len(Batch_sequence[i]) - 1):
+        # print(graph[i][j], graph[i][j+1])
+        edge = [Batch_sequence[i][j], Batch_sequence[i][j + 1]]
+        edge_list.append(edge)
+
+print("edge_list:", edge_list)
+new_edge_list = [[1, 8], [1, 2], [1, 4], [1, 5], [1, 6], [1, 4], [2, 11], [2, 7], [2, 10], [2, 13], [4, 7], [5, 3],
+                 [5, 9], [7, 20], [13, ]]
+G = nx.MultiGraph()
+G.add_nodes_from(node_list)
+G.add_edges_from(edge_list)
+
+mst = tree.minimum_spanning_tree(G, algorithm="prim")
+ST = SpanningTreeIterator(G, minimum=True, ignore_nan=True)
+
+T = nx.minimum_spanning_tree(G)
+
+print("edges:", sorted(T.edges(data=True)))
+
+pos1 = nx.nx_pydot.pydot_layout(G, prog="fdp")
+pos3 = nx.nx_pydot.graphviz_layout(G, prog="dot")
+print(pos1)
+# nx.draw(T, pos3, with_labels=True)
+
+
+p = nx.drawing.nx_pydot.to_pydot(T)
+
+print("tree position:", p)
+# plt.show()
+# grid_map.plot_grid_map()
+# plt.grid(which='minor', alpha=0.2)
+# plt.grid(which='major', alpha=0.5)
+
+# plt.show()
+
+### function to calculate spanning trees#
+main_edge = []
+for i in range(len(nList_diag) - 1):
+    # print(graph[i][j], graph[i][j+1])
+    edge1 = [nList_diag[i], nList_diag[i + 1]]
+    main_edge.append(edge1)
+
+print(main_edge)
+
+
+def hierarchy_pos(G, root, levels=None, width=1., height=1.):
+    '''If there is a cycle that is reachable from root, then this will see infinite recursion.
+       G: the graph
+       root: the root node
+       levels: a dictionary
+               key: level number (starting from 0)
+               value: number of nodes in this level
+       width: horizontal space allocated for drawing
+       height: vertical space allocated for drawing'''
+    TOTAL = "total"
+    CURRENT = "current"
+    def make_levels(levels, node=root, currentLevel=0, parent=None):
+        """Compute the number of nodes for each level
+        """
+        if not currentLevel in levels:
+            levels[currentLevel] = {TOTAL : 0, CURRENT : 0}
+        levels[currentLevel][TOTAL] += 1
+        neighbors = G.neighbors(node)
+        for neighbor in neighbors:
+            if not neighbor == parent:
+                levels =  make_levels(levels, neighbor, currentLevel + 1, node)
+        return levels
+
+    def make_pos(pos, node=root, currentLevel=0, parent=None, vert_loc=0):
+        dx = 1/levels[currentLevel][TOTAL]
+        left = dx/2
+        pos[node] = ((left + dx*levels[currentLevel][CURRENT])*width, vert_loc)
+        levels[currentLevel][CURRENT] += 1
+        neighbors = G.neighbors(node)
+        for neighbor in neighbors:
+            if not neighbor == parent:
+                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc-vert_gap)
+        return pos
+    if levels is None:
+        levels = make_levels({})
+    else:
+        levels = {l:{TOTAL: levels[l], CURRENT:0} for l in levels}
+    vert_gap = height / (max([l for l in levels])+1)
+    return make_pos({})
+
+
+## draw hierarchial graph
+
+h_pos = hierarchy_pos(T, root=1, width=35, height=35)
+
+print("printed h pos:", h_pos)
+nx.draw(T, h_pos, with_labels=True)
+plt.show()

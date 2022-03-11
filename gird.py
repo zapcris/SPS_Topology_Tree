@@ -232,6 +232,7 @@ def test_position_set():
 
     x = 3
     y = 3
+
     grid_map = GridMap(35, 35, 1, 17.5, 17.5)
 
     grid_map.set_value_from_xy_pos(x, y, 1)
