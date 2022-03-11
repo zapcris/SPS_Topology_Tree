@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from gird import *
 import matplotlib.pyplot as plt
@@ -24,7 +26,7 @@ weight = []
 for i in range(len(Qty_order)):
     weight.append(Qty_order[i] * len(Batch_sequence[i]))
 
-print(weight)
+print("weight list:", weight)
 ip_positions = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0),
                 6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10), 10: (17, 19),
                 11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22),
@@ -143,7 +145,7 @@ print(pos1)
 
 p = nx.drawing.nx_pydot.to_pydot(T)
 
-print("tree position:", p)
+# print("tree position:", p)
 # plt.show()
 # grid_map.plot_grid_map()
 # plt.grid(which='minor', alpha=0.2)
@@ -212,3 +214,57 @@ print("printed h pos:", h_pos)
 nx.draw(T, h_pos, with_labels=True)
 plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
 plt.show()
+
+
+def fitness_function(T, batch_list):
+    PI_cost = []
+
+    for i in range(len(batch_list)):
+        cost = 0.0
+        for j in range(len(batch_list[i]) - 1):
+            cost += nx.dijkstra_path_length(T, batch_list[i][j], batch_list[i][j + 1])
+
+        PI_cost.append(round(cost * (weight[i] / 100)))
+
+    batch_cost = sum(PI_cost)
+    return PI_cost, batch_cost
+
+
+print(h_pos)
+print(T.edges())
+print(h_pos[20][0], h_pos[20][1])
+
+## add weights to the spanning tree edges
+for e in T.edges():
+    dist = 0.0
+    first_node_x = h_pos[e[0]][0]
+    second_node_x = h_pos[e[1]][0]
+    first_node_y = h_pos[e[0]][1]
+    second_node_y = h_pos[e[1]][1]
+
+    dist += round(
+        math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
+    print("edges pair:", e[0], e[1], dist)
+    T[e[0]][e[1]][0]['weight'] = dist
+
+for e in T.edges():
+    print(T[e[0]][e[1]][0]['weight'])
+
+print("length source to target", nx.dijkstra_path_length(T, 1, 5))
+print("length source to target", nx.dijkstra_path_length(T, 1, 11))
+
+print(fitness_function(T, Batch_sequence))
+
+
+## Spanning tree for most weighted product Instance in the batch###
+
+def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
+    edge_list = []
+    for i in range(len(PI_sequence)-1):
+        edges = [PI_sequence[i],PI_sequence[i+1]]
+        edge_list.append(edges)
+
+
+    return edge_list
+
+print(spanning_tree(G, ip_positions,Batch_sequence[4], edge_list, node_list))
