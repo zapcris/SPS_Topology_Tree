@@ -219,17 +219,15 @@ plt.show()
 def fitness_function(T, batch_list):
     PI_cost = []
 
-
     for i in range(len(batch_list)):
         cost = 0.0
-        for j in range(len(batch_list[i])-1):
-            cost += nx.dijkstra_path_length(T, batch_list[i][j], batch_list[i][j+1])
+        for j in range(len(batch_list[i]) - 1):
+            cost += nx.dijkstra_path_length(T, batch_list[i][j], batch_list[i][j + 1])
 
-        PI_cost.append(round(cost * (weight[i]/100)))
+        PI_cost.append(round(cost * (weight[i] / 100)))
 
     batch_cost = sum(PI_cost)
     return PI_cost, batch_cost
-
 
 
 print(h_pos)
@@ -256,3 +254,17 @@ print("length source to target", nx.dijkstra_path_length(T, 1, 5))
 print("length source to target", nx.dijkstra_path_length(T, 1, 11))
 
 print(fitness_function(T, Batch_sequence))
+
+
+## Spanning tree for most weighted product Instance in the batch###
+
+def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
+    edge_list = []
+    for i in range(len(PI_sequence)-1):
+        edges = [PI_sequence[i],PI_sequence[i+1]]
+        edge_list.append(edges)
+
+
+    return edge_list
+
+print(spanning_tree(G, ip_positions,Batch_sequence[4], edge_list, node_list))
