@@ -172,40 +172,43 @@ def hierarchy_pos(G, root, levels=None, width=1., height=1.):
        height: vertical space allocated for drawing'''
     TOTAL = "total"
     CURRENT = "current"
+
     def make_levels(levels, node=root, currentLevel=0, parent=None):
         """Compute the number of nodes for each level
         """
         if not currentLevel in levels:
-            levels[currentLevel] = {TOTAL : 0, CURRENT : 0}
+            levels[currentLevel] = {TOTAL: 0, CURRENT: 0}
         levels[currentLevel][TOTAL] += 1
         neighbors = G.neighbors(node)
         for neighbor in neighbors:
             if not neighbor == parent:
-                levels =  make_levels(levels, neighbor, currentLevel + 1, node)
+                levels = make_levels(levels, neighbor, currentLevel + 1, node)
         return levels
 
     def make_pos(pos, node=root, currentLevel=0, parent=None, vert_loc=0):
-        dx = 1/levels[currentLevel][TOTAL]
-        left = dx/2
-        pos[node] = ((left + dx*levels[currentLevel][CURRENT])*width, vert_loc)
+        dx = 1 / levels[currentLevel][TOTAL]
+        left = dx / 2
+        pos[node] = (round((left + dx * levels[currentLevel][CURRENT]) * width), vert_loc)
         levels[currentLevel][CURRENT] += 1
         neighbors = G.neighbors(node)
         for neighbor in neighbors:
             if not neighbor == parent:
-                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc-vert_gap)
+                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc - vert_gap)
         return pos
+
     if levels is None:
         levels = make_levels({})
     else:
-        levels = {l:{TOTAL: levels[l], CURRENT:0} for l in levels}
-    vert_gap = height / (max([l for l in levels])+1)
+        levels = {l: {TOTAL: levels[l], CURRENT: 0} for l in levels}
+    vert_gap = height / (max([l for l in levels]) + 1)
     return make_pos({})
 
 
 ## draw hierarchial graph
 
-h_pos = hierarchy_pos(T, root=1, width=35, height=35)
+h_pos = hierarchy_pos(T, root=1, width=40, height=40)
 
 print("printed h pos:", h_pos)
 nx.draw(T, h_pos, with_labels=True)
+plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
 plt.show()
