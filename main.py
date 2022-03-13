@@ -215,9 +215,9 @@ h_pos = hierarchy_pos(T, root=1, width=40, height=40)
 print("printed h pos:", h_pos)
 
 
-# nx.draw(T, h_pos, with_labels=True)
-# plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
-# plt.show()
+nx.draw(T, h_pos, with_labels=True)
+plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
+plt.show()
 
 
 def fitness_function(T, batch_list):
