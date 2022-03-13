@@ -8,6 +8,7 @@ from networkx.algorithms import tree, SpanningTreeIterator
 import pygraphviz
 import scipy as sp
 import pydot
+import itertools
 
 pos2 = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0), 6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10),
         10: (17, 19), 11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22), 17: (27, 25), 19: (32, 31),
@@ -121,7 +122,8 @@ for i in range(len(Batch_sequence)):
     for j in range(len(Batch_sequence[i]) - 1):
         # print(graph[i][j], graph[i][j+1])
         edge = [Batch_sequence[i][j], Batch_sequence[i][j + 1]]
-        edge_list.append(edge)
+        if not edge in edge_list:
+            edge_list.append(edge)
 
 print("edge_list:", edge_list)
 new_edge_list = [[1, 8], [1, 2], [1, 4], [1, 5], [1, 6], [1, 4], [2, 11], [2, 7], [2, 10], [2, 13], [4, 7], [5, 3],
@@ -211,9 +213,11 @@ def hierarchy_pos(G, root, levels=None, width=1., height=1.):
 h_pos = hierarchy_pos(T, root=1, width=40, height=40)
 
 print("printed h pos:", h_pos)
-nx.draw(T, h_pos, with_labels=True)
-plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
-plt.show()
+
+
+# nx.draw(T, h_pos, with_labels=True)
+# plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
+# plt.show()
 
 
 def fitness_function(T, batch_list):
@@ -234,21 +238,50 @@ print(h_pos)
 print(T.edges())
 print(h_pos[20][0], h_pos[20][1])
 
+## Global weight map of the starting tree#####3
+w_map = {}
+for e in G.edges():
+    dist2 = 0.0
+
+    first_node_x = pos2[e[0]][0]
+    second_node_x = pos2[e[1]][0]
+    first_node_y = pos2[e[0]][1]
+    second_node_y = pos2[e[1]][1]
+
+    dist2 += round(
+        math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
+    # print("edges pair:", e[0], e[1], dist2)
+    G[e[0]][e[1]][0]['weight'] = dist2
+    w_map[(e[0], e[1])] = dist2
+
 ## add weights to the spanning tree edges
 for e in T.edges():
-    dist = 0.0
+    dist1 = 0.0
+
     first_node_x = h_pos[e[0]][0]
     second_node_x = h_pos[e[1]][0]
     first_node_y = h_pos[e[0]][1]
     second_node_y = h_pos[e[1]][1]
 
-    dist += round(
+    dist1 += round(
         math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
-    print("edges pair:", e[0], e[1], dist)
-    T[e[0]][e[1]][0]['weight'] = dist
+    # print("edges pair:", e[0], e[1], dist1)
+    T[e[0]][e[1]][0]['weight'] = dist1
 
-for e in T.edges():
-    print(T[e[0]][e[1]][0]['weight'])
+
+## function to add edge weight####
+
+def set_edge_weight(graph, pos):
+    for e in graph.edges():
+        dist = 0.0
+        first_node_x = pos[e[0]][0]
+        second_node_x = pos[e[1]][0]
+        first_node_y = pos[e[0]][1]
+        second_node_y = pos[e[1]][1]
+        dist += round(
+            math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
+        graph[e[0]][e[1]][0]['weight'] = dist
+
 
 print("length source to target", nx.dijkstra_path_length(T, 1, 5))
 print("length source to target", nx.dijkstra_path_length(T, 1, 11))
@@ -256,15 +289,95 @@ print("length source to target", nx.dijkstra_path_length(T, 1, 11))
 print(fitness_function(T, Batch_sequence))
 
 
+# print(w_map)
 ## Spanning tree for most weighted product Instance in the batch###
 
 def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
     edge_list = []
-    for i in range(len(PI_sequence)-1):
-        edges = [PI_sequence[i],PI_sequence[i+1]]
-        edge_list.append(edges)
+    remain_node = []
+    span_edges = []
+    reduced_span =[]
+    for i in range(len(PI_sequence) - 1):
+        e = [PI_sequence[i], PI_sequence[i + 1]]
+        edge_list.append(e)
+    # S = nx.MultiGraph()
+    # S.add_nodes_from(PI_sequence)
+    # S.add_edges_from(edge_list)
+    # set_edge_weight(S, pos2)
+    #
+    # mst = nx.minimum_spanning_tree(S)
+    # print(mst.edges.data("weight", default=1))
+
+    ### enlist nodes to be added to complete the spanning tree####
+    for node in full_nlist:
+        if not node in PI_sequence:
+            remain_node.append(node)
+    print("Remaining node:", remain_node)
+    print(full_elist)
+    ### enlist pair of edges from global edge list for remaining nodes
+    for node in remain_node:
+        for i in range(len(full_elist)):
+            for j in range(len(full_elist[i])):
+                if full_elist[i][j] == node:
+                    print(node, full_elist[i])
+                    d = node, full_elist[i],G[full_elist[i][0]][full_elist[i][1]][0]['weight']
+                    span_edges.append(d)
+
+    print(span_edges)
+    print("golbal position map:", w_map)
+    print(w_map[(1,5)])
+
+    ### remove edges from prospective list which has both the nodes not present in the current graph
+    for e in span_edges:
+        print(e[0],e[1][0],e[1][1],e[2])
+        if not(e[1][0] in remain_node and e[1][1] in remain_node):
+            reduced_span.append(e)
+
+    print("deleted span edges:", reduced_span)
+
+    ### pick edge pair from the reduced prospective list with minimum path to the current graph
+    visited = []
+    weight = []
+    edge = []
+    for e in reduced_span:
+        a = []
+        if e[0] in visited and e[1] == min(weight):
+            weight.clear()
+            edge.clear()
+            weight.append(e[2])
+            a = [e[1][0], e[1][1]]
+            edge.append(a)
+        if not e[0] in visited:
+            visited.append(e[0])
+            weight.append(e[2])
+            a = [e[1][0], e[1][1]]
+            edge.append(a)
+
+    print(weight)
+    print(edge)
+
+    edge_list.extend(edge)
 
 
-    return edge_list
+    print("Spanning tree edge list:", edge_list)
 
-print(spanning_tree(G, ip_positions,Batch_sequence[4], edge_list, node_list))
+    S = nx.MultiGraph()
+    S.add_nodes_from(PI_sequence)
+    S.add_edges_from(edge_list)
+
+    print("The graph is a tree?", nx.is_tree(S))
+
+
+    return mst
+
+
+MST = spanning_tree(G, ip_positions, Batch_sequence[4], edge_list, node_list)
+print(MST)
+mst_pos = hierarchy_pos(MST, root=1, width=40, height=40)
+nx.draw(MST, mst_pos, with_labels=True)
+plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
+plt.show()
+
+print(G.edges.data("weight", default=1))
+print(G.get_edge_data(1, 5, 0))
+print(G[1][5][0]['weight'])
