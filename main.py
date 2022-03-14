@@ -214,7 +214,6 @@ h_pos = hierarchy_pos(T, root=1, width=40, height=40)
 
 print("printed h pos:", h_pos)
 
-
 nx.draw(T, h_pos, with_labels=True)
 plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
 plt.show()
@@ -296,17 +295,10 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
     edge_list = []
     remain_node = []
     span_edges = []
-    reduced_span =[]
+    reduced_span = []
     for i in range(len(PI_sequence) - 1):
         e = [PI_sequence[i], PI_sequence[i + 1]]
         edge_list.append(e)
-    # S = nx.MultiGraph()
-    # S.add_nodes_from(PI_sequence)
-    # S.add_edges_from(edge_list)
-    # set_edge_weight(S, pos2)
-    #
-    # mst = nx.minimum_spanning_tree(S)
-    # print(mst.edges.data("weight", default=1))
 
     ### enlist nodes to be added to complete the spanning tree####
     for node in full_nlist:
@@ -320,17 +312,17 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
             for j in range(len(full_elist[i])):
                 if full_elist[i][j] == node:
                     print(node, full_elist[i])
-                    d = node, full_elist[i],G[full_elist[i][0]][full_elist[i][1]][0]['weight']
+                    d = node, full_elist[i], G[full_elist[i][0]][full_elist[i][1]][0]['weight']
                     span_edges.append(d)
 
     print(span_edges)
     print("golbal position map:", w_map)
-    print(w_map[(1,5)])
+    print(w_map[(1, 5)])
 
     ### remove edges from prospective list which has both the nodes not present in the current graph
     for e in span_edges:
-        print(e[0],e[1][0],e[1][1],e[2])
-        if not(e[1][0] in remain_node and e[1][1] in remain_node):
+        print(e[0], e[1][0], e[1][1], e[2])
+        if not (e[1][0] in remain_node and e[1][1] in remain_node):
             reduced_span.append(e)
 
     print("deleted span edges:", reduced_span)
@@ -358,7 +350,6 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
 
     edge_list.extend(edge)
 
-
     print("Spanning tree edge list:", edge_list)
 
     S = nx.MultiGraph()
@@ -367,11 +358,10 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
 
     print("The graph is a tree?", nx.is_tree(S))
 
-
     return mst
 
 
-MST = spanning_tree(G, ip_positions, Batch_sequence[4], edge_list, node_list)
+MST = spanning_tree(G, ip_positions, Batch_sequence[2], edge_list, node_list)
 print(MST)
 mst_pos = hierarchy_pos(MST, root=1, width=40, height=40)
 nx.draw(MST, mst_pos, with_labels=True)
@@ -381,3 +371,13 @@ plt.show()
 print(G.edges.data("weight", default=1))
 print(G.get_edge_data(1, 5, 0))
 print(G[1][5][0]['weight'])
+
+
+
+##### Genetic algorithm for Optimizing the Spanning tree problem######
+
+### Create population here
+
+
+
+
