@@ -1,7 +1,10 @@
 import math
 from collections import Counter
 import numpy as np
-from gird import *
+
+from Draw_heirachial_graph import draw_hierarchy_pos
+from Fitness_Function import fitness_function
+from grid_map import *
 import matplotlib.pyplot as plt
 import networkx as nx
 from networkx.algorithms import tree, SpanningTreeIterator
@@ -10,6 +13,7 @@ import scipy as sp
 import pydot
 import itertools
 import sys
+from Func_weighted_spanning_tree import *
 
 G_pos = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0),
           6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10), 10: (17, 19),
@@ -124,6 +128,7 @@ G = nx.MultiGraph()
 G.add_nodes_from(node_list)
 G.add_edges_from(raw_elist)
 width_dict = Counter(G.edges())
+### reliable edge list with distance and flow in dictionary####
 edge_dict = [(u, v, {'weight': euclidean_dist(G_pos[u][0], G_pos[u][1], G_pos[v][0], G_pos[v][1]), 'Flow': value})
              for ((u, v), value) in width_dict.items()]
 G.remove_edges_from(raw_elist)
@@ -163,76 +168,12 @@ for i in range(len(nList_diag) - 1):
 
 print(main_edge)
 
-
-def draw_hierarchy_pos(G, root, levels=None, width=1., height=1.):
-    '''If there is a cycle that is reachable from root, then this will see infinite recursion.
-       G: the graph
-       root: the root node
-       levels: a dictionary
-               key: level number (starting from 0)
-               value: number of nodes in this level
-       width: horizontal space allocated for drawing
-       height: vertical space allocated for drawing'''
-    TOTAL = "total"
-    CURRENT = "current"
-
-    def make_levels(levels, node=root, currentLevel=0, parent=None):
-        """Compute the number of nodes for each level
-        """
-        if not currentLevel in levels:
-            levels[currentLevel] = {TOTAL: 0, CURRENT: 0}
-        levels[currentLevel][TOTAL] += 1
-        neighbors = G.neighbors(node)
-        for neighbor in neighbors:
-            if not neighbor == parent:
-                levels = make_levels(levels, neighbor, currentLevel + 1, node)
-        return levels
-
-    def make_pos(pos, node=root, currentLevel=0, parent=None, vert_loc=0):
-        dx = 1 / levels[currentLevel][TOTAL]
-        left = dx / 2
-        pos[node] = (round((left + dx * levels[currentLevel][CURRENT]) * width), vert_loc)
-        levels[currentLevel][CURRENT] += 1
-        neighbors = G.neighbors(node)
-        for neighbor in neighbors:
-            if not neighbor == parent:
-                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc - vert_gap)
-        return pos
-
-    if levels is None:
-        levels = make_levels({})
-    else:
-        levels = {l: {TOTAL: levels[l], CURRENT: 0} for l in levels}
-    vert_gap = height / (max([l for l in levels]) + 1)
-    return make_pos({})
-
-
 ## draw hierarchial graph
-
 h_pos = draw_hierarchy_pos(T, root=1, width=40, height=40)
-
 print("printed h pos:", h_pos)
-
-
 # nx.draw(T, h_pos, with_labels=True)
 # plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
 # plt.show()
-
-
-def fitness_function(T, batch_list):
-    PI_cost = []
-
-    for i in range(len(batch_list)):
-        cost = 0.0
-        for j in range(len(batch_list[i]) - 1):
-            cost += nx.dijkstra_path_length(T, batch_list[i][j], batch_list[i][j + 1])
-
-        PI_cost.append(round(cost * (PI_weight[i] / 100)))
-
-    batch_cost = sum(PI_cost)
-    return PI_cost, batch_cost
-
-
 print(h_pos)
 print(T.edges())
 print(h_pos[20][0], h_pos[20][1])
@@ -269,81 +210,14 @@ def set_edge_weight(graph, pos):
 print("length source to target", nx.dijkstra_path_length(T, 1, 5))
 print("length source to target", nx.dijkstra_path_length(T, 1, 11))
 
-print(fitness_function(T, Batch_sequence))
+print(fitness_function(T, Batch_sequence, PI_weight))
 
 
 # print(w_map)
-## Spanning tree for most weighted product Instance in the batch###
-
-def create_weightedPI_tree(G, pos, PI_sequence, full_elist, full_nlist):
-    edge_list = []
-    remain_node = []
-    span_edges = []
-    reduced_span = []
-    for i in range(len(PI_sequence) - 1):
-        e = [PI_sequence[i], PI_sequence[i + 1]]
-        edge_list.append(e)
-
-    ### enlist nodes to be added to complete the spanning tree####
-    for node in full_nlist:
-        if not node in PI_sequence:
-            remain_node.append(node)
-    print("Remaining node:", remain_node)
-    print(full_elist)
-    ### enlist pair of edges from global edge list for remaining nodes
-    for node in remain_node:
-        for i in range(len(full_elist)):
-            for j in range(len(full_elist[i])):
-                if full_elist[i][j] == node:
-                    print(node, full_elist[i])
-                    d = node, full_elist[i], G[full_elist[i][0]][full_elist[i][1]][0]['weight']
-                    span_edges.append(d)
-
-    print(span_edges)
-
-    ### remove edges from prospective list which has both the nodes not present in the current graph
-    for e in span_edges:
-        print(e[0], e[1][0], e[1][1], e[2])
-        if not (e[1][0] in remain_node and e[1][1] in remain_node):
-            reduced_span.append(e)
-
-    print("deleted span edges:", reduced_span)
-
-    ### pick edge pair from the reduced prospective list with minimum path to the current graph
-    visited = []
-    weight = []
-    edge = []
-    for e in reduced_span:
-        a = []
-        if e[0] in visited and e[1] == min(weight):
-            weight.clear()
-            edge.clear()
-            weight.append(e[2])
-            a = [e[1][0], e[1][1]]
-            edge.append(a)
-        if not e[0] in visited:
-            visited.append(e[0])
-            weight.append(e[2])
-            a = [e[1][0], e[1][1]]
-            edge.append(a)
-
-    print(weight)
-    print(edge)
-
-    edge_list.extend(edge)
-
-    print("Spanning tree edge list:", edge_list)
-
-    S = nx.MultiGraph()
-    S.add_nodes_from(PI_sequence)
-    S.add_edges_from(edge_list)
-
-    print("The graph is a tree?", nx.is_tree(S))
-
-    return mst
 
 
-MST = create_weightedPI_tree(G, G_pos, Batch_sequence[2], edge_list, node_list)
+### test spaning tree out of  a
+MST = create_weightedPI_tree(G, G_pos, Batch_sequence[2])
 print(MST)
 mst_pos = draw_hierarchy_pos(MST, root=1, width=40, height=40)
 # nx.draw(MST, mst_pos, with_labels=True)
@@ -356,35 +230,26 @@ print(G[1][5][0]['weight'])
 
 ##### Genetic algorithm for Optimizing the Spanning tree problem######
 
+print("Start of the Genetic Algorithm")
+
 ### Create population here####
 random_pop = []
 grid_size = 40
 
 for i in range(10):
-    random_pop.append(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+    iter_class = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+    random_pop.append(next(iter_class))
 
 for i in range(10):
-    random_pop.append(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
+    iter_class = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
+    random_pop.append(next(iter_class))
 
 random_pop.append(
-    create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))], edge_list, node_list))
+    create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))]))
 
-ST_min = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
-ST_max = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
-ST = SpanningTreeIterator(G, minimum=False, ignore_nan=True)
-
-# test_lst = []
-# for x in range(10):
-#     test_lst.append(next(ST))
-# print(len(test_lst))
+print("Total population created:", len(random_pop))
 
 
-print("Spanning iterator:", next(ST_min).edges())
-print("Spanning iterator:", next(ST_min).edges())
-
-
-PT = tree.partition_spanning_tree(G, minimum=True, weight="weight", partition="partition", ignore_nan=False)
-print(PT.edges())
 # print("The graph is a tree?", nx.is_tree(ST))
 
 ## convert to tree all population###3
