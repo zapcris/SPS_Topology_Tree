@@ -1,5 +1,5 @@
 import math
-
+from collections import Counter
 import numpy as np
 from gird import *
 import matplotlib.pyplot as plt
@@ -9,10 +9,13 @@ import pygraphviz
 import scipy as sp
 import pydot
 import itertools
+import sys
 
-pos2 = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0), 6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10),
-        10: (17, 19), 11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22), 17: (27, 25), 19: (32, 31),
-        20: (26, 33)}
+G_pos = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0),
+          6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10), 10: (17, 19),
+          11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22),
+          17: (27, 25), 19: (32, 31), 20: (26, 33)}
+
 Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
                   [1, 2, 7, 3, 5, 6, 8, 9, 13, 15, 19, 20],
                   [1, 5, 8, 6, 3, 2, 4, 10, 15, 17, 20],
@@ -23,29 +26,13 @@ Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
 
 Qty_order = [10, 30, 50, 20, 60, 20, 40]
 
-weight = []
+PI_weight = []
 for i in range(len(Qty_order)):
-    weight.append(Qty_order[i] * len(Batch_sequence[i]))
+    PI_weight.append(Qty_order[i] * len(Batch_sequence[i]))
 
-print("weight list:", weight)
-ip_positions = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0),
-                6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10), 10: (17, 19),
-                11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22),
-                17: (27, 25), 19: (32, 31), 20: (26, 33)}
+print("weight list:", PI_weight)
 
-edge_frequencies = [[1, 5, {'frequency': 2}], [1, 2, {'frequency': 1}], [1, 8, {'frequency': 1}],
-                    [1, 4, {'frequency': 1}], [1, 6, {'frequency': 1}], [1, 14, {'frequency': 1}],
-                    [2, 10, {'frequency': 2}], [2, 11, {'frequency': 2}], [2, 7, {'frequency': 1}],
-                    [2, 3, {'frequency': 1}], [2, 4, {'frequency': 2}], [2, 13, {'frequency': 1}],
-                    [3, 7, {'frequency': 1}], [3, 5, {'frequency': 1}], [3, 6, {'frequency': 2}],
-                    [3, 17, {'frequency': 1}], [3, 8, {'frequency': 1}], [3, 12, {'frequency': 1}],
-                    [4, 10, {'frequency': 3}], [4, 17, {'frequency': 1}], [4, 12, {'frequency': 1}],
-                    [5, 9, {'frequency': 1}], [5, 6, {'frequency': 1}], [5, 8, {'frequency': 1}],
-                    [6, 8, {'frequency': 5}], [6, 13, {'frequency': 1}], [7, 15, {'frequency': 2}],
-                    [7, 20, {'frequency': 2}], [8, 9, {'frequency': 3}], [8, 14, {'frequency': 1}],
-                    [9, 10, {'frequency': 2}], [9, 13, {'frequency': 2}], [10, 15, {'frequency': 3}],
-                    [11, 13, {'frequency': 2}], [13, 15, {'frequency': 4}], [15, 19, {'frequency': 2}],
-                    [15, 17, {'frequency': 3}], [17, 20, {'frequency': 3}], [19, 20, {'frequency': 2}]]
+
 
 matrix = np.array(
     [[-2, 5, 3, 2],
@@ -63,7 +50,7 @@ diags.extend(matrix.diagonal(i) for i in range(3, -4, -1))
 Grid = np.zeros((35, 35))
 print(Grid)
 
-max_index = weight.index(max(weight))
+max_index = PI_weight.index(max(PI_weight))
 print(max_index)
 
 nList_diag = Batch_sequence[max_index]
@@ -80,7 +67,6 @@ interval = len(Grid.diagonal()) // len(nList_diag)
 
 # print(interval)
 
-print(len(Grid.diagonal()))
 
 diag_seq = [0 for n in Grid.diagonal()]
 
@@ -109,43 +95,56 @@ for i in range(len(nList_diag)):
     #              ha='left')  # horizontal alignment can be left, right or cente
 
 
-## Minimum Spanninf Tree algorithm
+## Minimum Spanning Tree algorithm
 
 def unique_values_in_list_of_lists(lst):
     result = set(x for l in lst for x in l)
     return list(result)
 
 
+def euclidean_dist(x1, y1, x2, y2):
+    dist = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2) * 1.0)
+    return round(dist)
+
+
 node_list = unique_values_in_list_of_lists(Batch_sequence)
 edge_list = []
+raw_elist = []
+
 for i in range(len(Batch_sequence)):
     for j in range(len(Batch_sequence[i]) - 1):
         # print(graph[i][j], graph[i][j+1])
         edge = [Batch_sequence[i][j], Batch_sequence[i][j + 1]]
+        raw_elist.append(edge)
         if not edge in edge_list:
-            edge_list.append(edge)
+            edge_list.append(edge) #### edge list of non repeating edges
 
-print("edge_list:", edge_list)
-new_edge_list = [[1, 8], [1, 2], [1, 4], [1, 5], [1, 6], [1, 4], [2, 11], [2, 7], [2, 10], [2, 13], [4, 7], [5, 3],
-                 [5, 9], [7, 20], [13, ]]
+### Generate a graph from the Genetic STage 1 Force directed output####
 G = nx.MultiGraph()
 G.add_nodes_from(node_list)
-G.add_edges_from(edge_list)
+G.add_edges_from(raw_elist)
+width_dict = Counter(G.edges())
+edge_dict = [(u, v, {'weight': euclidean_dist(G_pos[u][0], G_pos[u][1], G_pos[v][0], G_pos[v][1]), 'Flow': value})
+             for ((u, v), value) in width_dict.items()]
+G.remove_edges_from(raw_elist)
+G.add_edges_from(edge_dict)
+print(G.edges())
+print(G.edges.data())
+
 
 mst = tree.minimum_spanning_tree(G, algorithm="prim")
-ST = SpanningTreeIterator(G, minimum=True, ignore_nan=True)
 
 T = nx.minimum_spanning_tree(G)
 
 print("edges:", sorted(T.edges(data=True)))
-
-pos1 = nx.nx_pydot.pydot_layout(G, prog="fdp")
-pos3 = nx.nx_pydot.graphviz_layout(G, prog="dot")
-print(pos1)
+#
+# pos1 = nx.nx_pydot.pydot_layout(G, prog="fdp")
+# pos3 = nx.nx_pydot.graphviz_layout(G, prog="dot")
+# print(pos1)
 # nx.draw(T, pos3, with_labels=True)
 
 
-p = nx.drawing.nx_pydot.to_pydot(T)
+# p = nx.drawing.nx_pydot.to_pydot(T)
 
 # print("tree position:", p)
 # plt.show()
@@ -165,7 +164,7 @@ for i in range(len(nList_diag) - 1):
 print(main_edge)
 
 
-def hierarchy_pos(G, root, levels=None, width=1., height=1.):
+def draw_hierarchy_pos(G, root, levels=None, width=1., height=1.):
     '''If there is a cycle that is reachable from root, then this will see infinite recursion.
        G: the graph
        root: the root node
@@ -210,13 +209,14 @@ def hierarchy_pos(G, root, levels=None, width=1., height=1.):
 
 ## draw hierarchial graph
 
-h_pos = hierarchy_pos(T, root=1, width=40, height=40)
+h_pos = draw_hierarchy_pos(T, root=1, width=40, height=40)
 
 print("printed h pos:", h_pos)
 
-nx.draw(T, h_pos, with_labels=True)
-plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
-plt.show()
+
+# nx.draw(T, h_pos, with_labels=True)
+# plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
+# plt.show()
 
 
 def fitness_function(T, batch_list):
@@ -227,7 +227,7 @@ def fitness_function(T, batch_list):
         for j in range(len(batch_list[i]) - 1):
             cost += nx.dijkstra_path_length(T, batch_list[i][j], batch_list[i][j + 1])
 
-        PI_cost.append(round(cost * (weight[i] / 100)))
+        PI_cost.append(round(cost * (PI_weight[i] / 100)))
 
     batch_cost = sum(PI_cost)
     return PI_cost, batch_cost
@@ -236,22 +236,6 @@ def fitness_function(T, batch_list):
 print(h_pos)
 print(T.edges())
 print(h_pos[20][0], h_pos[20][1])
-
-## Global weight map of the starting tree#####3
-w_map = {}
-for e in G.edges():
-    dist2 = 0.0
-
-    first_node_x = pos2[e[0]][0]
-    second_node_x = pos2[e[1]][0]
-    first_node_y = pos2[e[0]][1]
-    second_node_y = pos2[e[1]][1]
-
-    dist2 += round(
-        math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
-    # print("edges pair:", e[0], e[1], dist2)
-    G[e[0]][e[1]][0]['weight'] = dist2
-    w_map[(e[0], e[1])] = dist2
 
 ## add weights to the spanning tree edges
 for e in T.edges():
@@ -263,7 +247,7 @@ for e in T.edges():
     second_node_y = h_pos[e[1]][1]
 
     dist1 += round(
-        math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(first_node_y - second_node_y, 2) * 1.0))
+        math.sqrt(math.pow(second_node_x - first_node_x, 2) + math.pow(second_node_y - first_node_y, 2) * 1.0))
     # print("edges pair:", e[0], e[1], dist1)
     T[e[0]][e[1]][0]['weight'] = dist1
 
@@ -291,7 +275,7 @@ print(fitness_function(T, Batch_sequence))
 # print(w_map)
 ## Spanning tree for most weighted product Instance in the batch###
 
-def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
+def create_weightedPI_tree(G, pos, PI_sequence, full_elist, full_nlist):
     edge_list = []
     remain_node = []
     span_edges = []
@@ -316,8 +300,6 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
                     span_edges.append(d)
 
     print(span_edges)
-    print("golbal position map:", w_map)
-    print(w_map[(1, 5)])
 
     ### remove edges from prospective list which has both the nodes not present in the current graph
     for e in span_edges:
@@ -361,23 +343,65 @@ def spanning_tree(G, pos, PI_sequence, full_elist, full_nlist):
     return mst
 
 
-MST = spanning_tree(G, ip_positions, Batch_sequence[2], edge_list, node_list)
+MST = create_weightedPI_tree(G, G_pos, Batch_sequence[2], edge_list, node_list)
 print(MST)
-mst_pos = hierarchy_pos(MST, root=1, width=40, height=40)
-nx.draw(MST, mst_pos, with_labels=True)
-plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
-plt.show()
+mst_pos = draw_hierarchy_pos(MST, root=1, width=40, height=40)
+# nx.draw(MST, mst_pos, with_labels=True)
+# plt.grid(visible=True, color='r', linestyle='-', linewidth=2)
+# plt.show()
 
 print(G.edges.data("weight", default=1))
 print(G.get_edge_data(1, 5, 0))
 print(G[1][5][0]['weight'])
 
-
-
 ##### Genetic algorithm for Optimizing the Spanning tree problem######
 
-### Create population here
+### Create population here####
+random_pop = []
+grid_size = 40
+
+for i in range(10):
+    random_pop.append(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+
+for i in range(10):
+    random_pop.append(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
+
+random_pop.append(
+    create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))], edge_list, node_list))
+
+ST_min = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+ST_max = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
+ST = SpanningTreeIterator(G, minimum=False, ignore_nan=True)
+
+# test_lst = []
+# for x in range(10):
+#     test_lst.append(next(ST))
+# print(len(test_lst))
 
 
+print("Spanning iterator:", next(ST_min).edges())
+print("Spanning iterator:", next(ST_min).edges())
 
 
+PT = tree.partition_spanning_tree(G, minimum=True, weight="weight", partition="partition", ignore_nan=False)
+print(PT.edges())
+# print("The graph is a tree?", nx.is_tree(ST))
+
+## convert to tree all population###3
+tree_pos = []
+tree_pop = []
+# for pop in random_pop:
+#     t = draw_hierarchy_pos(pop, root=1, width=grid_size, height=grid_size)
+#     tree_pos.append(t)
+#     nx.draw(pop, t, with_labels=True)
+#     plt.pause(0.05)
+#     print("number of tree graph")
+
+
+##### calculate fitness function for random population
+
+random_fitness = []
+for pop in tree_pop:
+    random_fitness.append(fitness_function(pop, Batch_sequence))
+
+# print(random_fitness)
