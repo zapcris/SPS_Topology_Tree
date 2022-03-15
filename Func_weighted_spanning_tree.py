@@ -39,13 +39,13 @@ def create_weightedPI_tree(G, pos, PI_sequence):
         e = [PI_sequence[i], PI_sequence[i + 1]]
         edge_list.append(e)
     print("Input product sequence:", PI_sequence)
-    #print("Complete topology:", full_elist)
-    #print("Complete topology:", full_elist[1][0], full_elist[1][1])
+    # print("Complete topology:", full_elist)
+    # print("Complete topology:", full_elist[1][0], full_elist[1][1])
     ### enlist nodes to be added to complete the spanning tree####
     for node in full_nlist:
         if not node in PI_sequence:
             remain_node.append(node)
-    #print("Remaining node:", remain_node)
+    # print("Remaining node:", remain_node)
     # print(full_elist)
     ### enlist pair of edges from global edge list for remaining nodes
     for node in remain_node:
@@ -56,7 +56,7 @@ def create_weightedPI_tree(G, pos, PI_sequence):
                     n = node, full_elist[i], G[full_elist[i][0]][full_elist[i][1]][0]['weight']
                     span_edges.append(n)
 
-    #print("FIrst step of spanned edges", span_edges)
+    # print("FIrst step of spanned edges", span_edges)
 
     ### remove edges from prospective list which has both the nodes not present in the current graph
     for e in span_edges:
@@ -67,7 +67,7 @@ def create_weightedPI_tree(G, pos, PI_sequence):
     #         filtered_edges.append(e)
     #
     # print("Filtered edges:", filtered_edges)
-    #print("second step reduction span edges:", reduced_span)
+    # print("second step reduction span edges:", reduced_span)
 
     ### pick edge pair from the reduced prospective list with minimum path to the current graph
     visited = []

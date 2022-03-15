@@ -261,8 +261,19 @@ pIndex_2 = random_fitness.index(sorted_fitness[1])
 parent1 = random_pop[pIndex_1]
 parent2 = random_pop[pIndex_2]
 
-print(parent1)
-print(parent2)
+root = 1
+sequence1 = nx.to_nested_tuple(parent1,root)
+sequence2 = nx.to_nested_tuple(parent2,root)
+print(sequence1)
+print(sequence2)
+print(parent1.edges())
+print(parent2.edges())
+
+
+for line1, line2  in zip(nx.generate_adjlist(parent1), nx.generate_adjlist(parent2)):
+
+    print(line1)
+    print(line2)
 ##### crossover function#######
 
 # print(len(list(G.neighbors(1))))
