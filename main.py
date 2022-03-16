@@ -37,7 +37,7 @@ PI_weight = []
 for i in range(len(Qty_order)):
     PI_weight.append(Qty_order[i] * len(Batch_sequence[i]))
 
-print("weight list:", PI_weight)
+print("weighted list for Product Instances:", PI_weight)
 
 matrix = np.array(
     [[-2, 5, 3, 2],
@@ -53,13 +53,13 @@ diags.extend(matrix.diagonal(i) for i in range(3, -4, -1))
 
 
 Grid = np.zeros((35, 35))
-print(Grid)
+#print(Grid)
 
 max_index = PI_weight.index(max(PI_weight))
-print(max_index)
+#print(max_index)
 
 nList_diag = Batch_sequence[max_index]
-print("Diagnoally prefered sequence", nList_diag)
+#print("Diagnoally prefered sequence", nList_diag)
 
 np.fill_diagonal(Grid, 99)
 
@@ -202,7 +202,7 @@ G.add_edges_from(edge_dict)
 # plt.show()
 
 
-print(G[1][5][0]['weight'])
+# print(G[1][5][0]['weight'])
 
 ##### Genetic algorithm for Optimizing the Spanning tree problem######
 
@@ -220,11 +220,11 @@ for i in range(1):
     iter_class = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
     random_pop.append(next(iter_class))
 #
-# random_pop.append(
+
 #     create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))]))
 for pseq in Batch_sequence:
     random_pop.append(create_weightedPI_tree(G, G_pos, pseq))
-    print("The new batch sequenc:", pseq)
+    #print("The new batch sequenc:", pseq)
 
 ## Draw hierarchy tree psoitions all population###
 tree_pos = []
@@ -249,32 +249,18 @@ print("pause ended")
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
     random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight))
     time.sleep(0.05)
-    print(i, random_fitness[i])
+    #print(i, random_fitness[i])
 
 # print(random_pop[20].edges())
 ## Choose the fittest spanning tree####
 
-print(random_fitness)
+print("Fitness values for population",random_fitness)
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
 
 parent1 = random_pop[pIndex_1]
 parent2 = random_pop[pIndex_2]
-
-# root = 1
-# sequence1 = nx.to_nested_tuple(parent1, root)
-# sequence2 = nx.to_nested_tuple(parent2, root)
-# print(sequence1)
-# print(sequence2)
-# print(parent1.edges())
-# print(parent2.edges())
-
-#
-# for line1, line2  in zip(nx.generate_adjlist(parent1), nx.generate_adjlist(parent2)):
-#
-#     print(line1)
-#     print(line2)
 
 ##### crossover function#######
 ### convert the global map G to prufer suitable
