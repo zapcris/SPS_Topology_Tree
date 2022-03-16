@@ -126,6 +126,7 @@ edge_dict = [(u, v, {'weight': euclidean_dist(G_pos[u][0], G_pos[u][1], G_pos[v]
              for ((u, v), value) in width_dict.items()]
 G.remove_edges_from(raw_elist)
 G.add_edges_from(edge_dict)
+
 # print(G.edges())
 # print(G.edges.data())
 
@@ -212,14 +213,26 @@ print("Start of the Genetic Algorithm")
 random_pop = []
 grid_size = 40
 
-for i in range(1):
-    iter_class = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
-    random_pop.append(next(iter_class))
+L = nx.MultiGraph()
+L.add_nodes_from(node_list)
+L.add_edges_from(raw_elist)
 
 for i in range(1):
-    iter_class = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
-    random_pop.append(next(iter_class))
+    iter_class1 = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+    random_pop.append(next(iter_class1))
+
+for i in range(1):
+    iter_class2 = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
+    random_pop.append(next(iter_class2))
 #
+
+for i in range(1):
+    iter_class3 = iter(SpanningTreeIterator(L, minimum=True, ignore_nan=True))
+    random_pop.append(next(iter_class3))
+
+for i in range(1):
+    iter_class4 = iter(SpanningTreeIterator(L, minimum=False, ignore_nan=True))
+    random_pop.append(next(iter_class4))
 
 #     create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))]))
 for pseq in Batch_sequence:
@@ -232,12 +245,13 @@ for i, chr_Tree in enumerate(random_pop):
     pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
     tree_pos.append(pos)
     plt.figure()
-    plt.title(f"The plot belongs to initial population {i+1} ")
+    plt.title(f"The plot belongs to initial population {i + 1} ")
     nx.draw(chr_Tree, pos, with_labels=True)
     plt.grid(True)
     plt.pause(0.05)
     plt.show()
 
+sys.exit()
 ##### calculate fitness function for random population
 cross_gen_fitness = []
 random_fitness = []
@@ -292,7 +306,7 @@ def prufer_to_tree(pruf_seq, map):
     graph = nx.from_prufer_sequence(pruf_seq)
 
     graph = nx.relabel_nodes(graph, map)
-    #print("The graph is a tree?", nx.is_tree(graph))
+    # print("The graph is a tree?", nx.is_tree(graph))
     return graph
 
 
@@ -421,6 +435,7 @@ for i, fit in enumerate(cross_gen_fitness):
         gen_fit = i + 1
 
 if gen_fit <= 1:
-    print(f" Fittest value found is : {min_fit} in initial population chromosome no: {(random_fitness.index(min_fit))+1}")
+    print(
+        f" Fittest value found is : {min_fit} in initial population chromosome no: {(random_fitness.index(min_fit)) + 1}")
 else:
     print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
