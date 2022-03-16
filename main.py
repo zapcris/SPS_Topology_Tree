@@ -408,20 +408,11 @@ def genetic_stage2(parent1, parent2, gen):
     print(offspring_fitness)
 
     if min(offspring_fitness) <= 2000 or gen >= 10:
-        print(cross_gen_fitness)
-        min_fit = 0
-        gen_fit = 0
-        for i, fit in enumerate(cross_gen_fitness):
-            if i==0:
-                min_fit = min(fit)
-                gen_fit = i+1
-            elif min(fit) < min_fit:
-                min_fit = min(fit)
-                gen_fit = i+1
-                print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
+        print("Recurssion Ended ")
+
 
     else:
-        time.sleep(1)
+        #time.sleep(1)
         gen = gen + 1
 
         sorted_fitness = sorted(offspring_fitness)
@@ -433,3 +424,14 @@ def genetic_stage2(parent1, parent2, gen):
 
 
 genetic_stage2(parent1, parent2, 1)
+min_fit = 0
+gen_fit = 0
+for i, fit in enumerate(cross_gen_fitness):
+    if i == 0:
+        min_fit = min(fit)
+        gen_fit = 1
+    elif min(fit) < min_fit:
+        min_fit = min(fit)
+        gen_fit = i + 1
+
+print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
