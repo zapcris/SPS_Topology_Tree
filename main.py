@@ -53,13 +53,13 @@ diags.extend(matrix.diagonal(i) for i in range(3, -4, -1))
 
 
 Grid = np.zeros((35, 35))
-#print(Grid)
+# print(Grid)
 
 max_index = PI_weight.index(max(PI_weight))
-#print(max_index)
+# print(max_index)
 
 nList_diag = Batch_sequence[max_index]
-#print("Diagnoally prefered sequence", nList_diag)
+# print("Diagnoally prefered sequence", nList_diag)
 
 np.fill_diagonal(Grid, 99)
 
@@ -224,22 +224,22 @@ for i in range(1):
 #     create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))]))
 for pseq in Batch_sequence:
     random_pop.append(create_weightedPI_tree(G, G_pos, pseq))
-    #print("The new batch sequenc:", pseq)
+    # print("The new batch sequenc:", pseq)
 
 ## Draw hierarchy tree psoitions all population###
 tree_pos = []
 for i, chr_Tree in enumerate(random_pop):
     pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
     tree_pos.append(pos)
-    # plt.figure()
-    # plt.title(f"The plot belongs to tree {i} ")
-    # nx.draw(chr_Tree, pos, with_labels=True)
-    # plt.grid(True)
-    # plt.pause(0.05)
-    # plt.show()
+    plt.figure()
+    plt.title(f"The plot belongs to initial population {i+1} ")
+    nx.draw(chr_Tree, pos, with_labels=True)
+    plt.grid(True)
+    plt.pause(0.05)
+    plt.show()
 
 ##### calculate fitness function for random population
-
+cross_gen_fitness = []
 random_fitness = []
 
 print("Taking a pause")
@@ -249,12 +249,13 @@ print("pause ended")
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
     random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight))
     time.sleep(0.05)
-    #print(i, random_fitness[i])
+    # print(i, random_fitness[i])
 
+cross_gen_fitness.append(random_fitness)
 # print(random_pop[20].edges())
 ## Choose the fittest spanning tree####
 
-print("Fitness values for population",random_fitness)
+print("Fitness values for population", random_fitness)
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
@@ -291,7 +292,7 @@ def prufer_to_tree(pruf_seq, map):
     graph = nx.from_prufer_sequence(pruf_seq)
 
     graph = nx.relabel_nodes(graph, map)
-    print("The graph is a tree?", nx.is_tree(graph))
+    #print("The graph is a tree?", nx.is_tree(graph))
     return graph
 
 
@@ -350,8 +351,6 @@ def prufer_to_tree(pruf_seq, map):
 #
 # print(offspring_fitness)
 
-cross_gen_fitness = []
-
 
 def genetic_stage2(parent1, parent2, gen):
     print("Started recurrsion with generation number", gen)
@@ -391,14 +390,14 @@ def genetic_stage2(parent1, parent2, gen):
         offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight))
 
     cross_gen_fitness.append(offspring_fitness)
-    print(offspring_fitness)
+    print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
-    if min(offspring_fitness) <= 2000 or gen >= 10:
+    if min(offspring_fitness) <= 2000 or gen >= 50:
         print("Recurssion Ended ")
 
 
     else:
-        #time.sleep(1)
+        # time.sleep(1)
         gen = gen + 1
 
         sorted_fitness = sorted(offspring_fitness)
@@ -413,6 +412,7 @@ genetic_stage2(parent1, parent2, 1)
 min_fit = 0
 gen_fit = 0
 for i, fit in enumerate(cross_gen_fitness):
+    print(fit)
     if i == 0:
         min_fit = min(fit)
         gen_fit = 1
@@ -420,4 +420,7 @@ for i, fit in enumerate(cross_gen_fitness):
         min_fit = min(fit)
         gen_fit = i + 1
 
-print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
+if gen_fit <= 1:
+    print(f" Fittest value found is : {min_fit} in initial population chromosome no: {(random_fitness.index(min_fit))+1}")
+else:
+    print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
