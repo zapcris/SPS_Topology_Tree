@@ -276,4 +276,5 @@ for line1, line2  in zip(nx.generate_adjlist(parent1), nx.generate_adjlist(paren
     print(line2)
 ##### crossover function#######
 
+
 # print(len(list(G.neighbors(1))))
