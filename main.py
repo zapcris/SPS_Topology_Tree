@@ -1,6 +1,8 @@
 import math
 import time
 from collections import Counter
+
+import numpy
 import numpy as np
 
 from Draw_heirachial_graph import draw_hierarchy_pos
@@ -97,11 +99,11 @@ for i in range(len(nList_diag)):
     #              xytext=(0, 0),  # distance from text to points (x,y)
     #              ha='left')  # horizontal alignment can be left, right or cente
 
-
 ## Start of the Spanning Tree solution to the problem#####
 
 
 node_list = unique_values_in_list_of_lists(Batch_sequence)
+print("Total nodes in batch:", node_list)
 edge_list = []
 raw_elist = []
 
@@ -229,19 +231,19 @@ tree_pos = []
 for i, chr_Tree in enumerate(random_pop):
     pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
     tree_pos.append(pos)
-    plt.figure()
-    plt.title(f"The plot belongs to tree {i} ")
-    nx.draw(chr_Tree, pos, with_labels=True)
-    plt.grid(True)
-    plt.pause(0.05)
-    plt.show()
+    # plt.figure()
+    # plt.title(f"The plot belongs to tree {i} ")
+    # nx.draw(chr_Tree, pos, with_labels=True)
+    # plt.grid(True)
+    # plt.pause(0.05)
+    # plt.show()
 
 ##### calculate fitness function for random population
 
 random_fitness = []
 
 print("Taking a pause")
-time.sleep(1)  # Pause 5.5 seconds
+time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
@@ -257,24 +259,177 @@ sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
 
-
 parent1 = random_pop[pIndex_1]
 parent2 = random_pop[pIndex_2]
 
-root = 1
-sequence1 = nx.to_nested_tuple(parent1,root)
-sequence2 = nx.to_nested_tuple(parent2,root)
-print(sequence1)
-print(sequence2)
-print(parent1.edges())
-print(parent2.edges())
+# root = 1
+# sequence1 = nx.to_nested_tuple(parent1, root)
+# sequence2 = nx.to_nested_tuple(parent2, root)
+# print(sequence1)
+# print(sequence2)
+# print(parent1.edges())
+# print(parent2.edges())
 
+#
+# for line1, line2  in zip(nx.generate_adjlist(parent1), nx.generate_adjlist(parent2)):
+#
+#     print(line1)
+#     print(line2)
 
-for line1, line2  in zip(nx.generate_adjlist(parent1), nx.generate_adjlist(parent2)):
-
-    print(line1)
-    print(line2)
 ##### crossover function#######
+### convert the global map G to prufer suitable
+prufer_map = {}
+for i, j in enumerate(set(G)):
+    prufer_map[j] = i
+
+print("Prufer global map:", prufer_map)
+
+### convert back to original map
+origin_map = dict([(value, key) for key, value in prufer_map.items()])
+print("original map:", origin_map)
 
 
-# print(len(list(G.neighbors(1))))
+def get_prufer_sequence(parent, map):
+    # map = {}
+    # for i, j in enumerate(set(parent)):
+    #     map[j] = i
+    # print("map of offsrping1 :", map)
+    parent = nx.relabel_nodes(parent, map)
+    # print(set(parent))
+    # print(set(range(len(parent))))
+    pruf_seq = nx.to_prufer_sequence(parent)
+    return pruf_seq, parent
+
+
+def prufer_to_tree(pruf_seq, map):
+    graph = nx.from_prufer_sequence(pruf_seq)
+
+    graph = nx.relabel_nodes(graph, map)
+    print("The graph is a tree?", nx.is_tree(graph))
+    return graph
+
+
+# pruf_parent1 = get_prufer_sequence(parent1, prufer_map)
+# pruf_parent2 = get_prufer_sequence(parent2, prufer_map)
+#
+# middle_idx1 = round((len(pruf_parent1[0]) - 1) / 2)
+# middle_idx2 = round((len(pruf_parent2[0]) - 1) / 2)
+#
+# # off_pruf1_1 = pruf_parent1[0][:middle_idx1]
+# # off_pruf1_2 = pruf_parent1[0][middle_idx1:]
+# # off_pruf2_1 = pruf_parent2[0][:middle_idx2]
+# # off_pruf2_2 = pruf_parent2[0][middle_idx2:]
+# #
+# # off_pruf1 = off_pruf1_1 + off_pruf2_2
+# # off_pruf2 = off_pruf2_1 + off_pruf1_2
+# # off_pruf3 = off_pruf1_1 + off_pruf2_1
+# # off_pruf4 = off_pruf2_1 + off_pruf1_1
+#
+# off_pruf1 = pruf_parent1[0][:middle_idx1] + pruf_parent2[0][middle_idx2:]
+# off_pruf2 = pruf_parent2[0][:middle_idx2] + pruf_parent1[0][middle_idx1:]
+# off_pruf3 = pruf_parent1[0][:middle_idx1] + pruf_parent2[0][:middle_idx2]
+# off_pruf4 = pruf_parent2[0][:middle_idx2] + pruf_parent1[0][:middle_idx1]
+#
+# print(pruf_parent1)
+# print(pruf_parent2)
+#
+# print("offspring 1 prufer sequence:", off_pruf1)
+# print("offspring 2 prufer sequence:", off_pruf2)
+#
+# off1_tree = prufer_to_tree(off_pruf1, origin_map)
+# off2_tree = prufer_to_tree(off_pruf2, origin_map)
+# off3_tree = prufer_to_tree(off_pruf3, origin_map)
+# off4_tree = prufer_to_tree(off_pruf4, origin_map)
+#
+# logical_off = [off1_tree, off2_tree, off3_tree, off4_tree]
+#
+# print("The graph is a tree?", nx.is_tree(off1_tree))
+#
+#
+# offspring_trees= []
+# ### Draw and calculate fitness function ####
+# for i, off_tree in enumerate(logical_off):
+#     pos_off = draw_hierarchy_pos(off_tree, root=1, width=grid_size, height=grid_size)
+#     plt.figure()
+#     plt.title(f"The plot belongs to offsrping {i + 1} ")
+#     nx.draw(off_tree, pos_off, with_labels=True)
+#     plt.grid(True)
+#     plt.pause(0.05)
+#     plt.show()
+#     offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
+#
+# offspring_fitness= []
+# for i, off_top in enumerate(offspring_trees):
+#     offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight))
+#
+# print(offspring_fitness)
+
+cross_gen_fitness = []
+
+
+def genetic_stage2(parent1, parent2, gen):
+    print("Started recurrsion with generation number", gen)
+    parent_fitness = []
+    offspring_fitness = []
+    offspring_fitness = []
+    pruf_parent1 = get_prufer_sequence(parent1, prufer_map)
+    pruf_parent2 = get_prufer_sequence(parent2, prufer_map)
+
+    middle_idx1 = round((len(pruf_parent1[0]) - 1) / 2)
+    middle_idx2 = round((len(pruf_parent2[0]) - 1) / 2)
+
+    off_pruf1 = pruf_parent1[0][:middle_idx1] + pruf_parent2[0][middle_idx2:]
+    off_pruf2 = pruf_parent2[0][:middle_idx2] + pruf_parent1[0][middle_idx1:]
+    off_pruf3 = pruf_parent1[0][:middle_idx1] + pruf_parent2[0][:middle_idx2]
+    off_pruf4 = pruf_parent2[0][:middle_idx2] + pruf_parent1[0][:middle_idx1]
+
+    off1_tree = prufer_to_tree(off_pruf1, origin_map)
+    off2_tree = prufer_to_tree(off_pruf2, origin_map)
+    off3_tree = prufer_to_tree(off_pruf3, origin_map)
+    off4_tree = prufer_to_tree(off_pruf4, origin_map)
+
+    logical_off = [off1_tree, off2_tree, off3_tree, off4_tree]
+    offspring_trees = []
+    ### Draw and calculate fitness function ####
+    for i, off_tree in enumerate(logical_off):
+        pos_off = draw_hierarchy_pos(off_tree, root=1, width=grid_size, height=grid_size)
+        plt.figure()
+        plt.title(f"The plot belongs to offsrping {i + 1} in generation {gen} ")
+        nx.draw(off_tree, pos_off, with_labels=True)
+        plt.grid(True)
+        plt.pause(0.05)
+        plt.show()
+        offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
+
+    for i, off_top in enumerate(offspring_trees):
+        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight))
+
+    cross_gen_fitness.append(offspring_fitness)
+    print(offspring_fitness)
+
+    if min(offspring_fitness) <= 2000 or gen >= 10:
+        print(cross_gen_fitness)
+        min_fit = 0
+        gen_fit = 0
+        for i, fit in enumerate(cross_gen_fitness):
+            if i==0:
+                min_fit = min(fit)
+                gen_fit = i+1
+            elif min(fit) < min_fit:
+                min_fit = min(fit)
+                gen_fit = i+1
+                print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
+
+    else:
+        time.sleep(1)
+        gen = gen + 1
+
+        sorted_fitness = sorted(offspring_fitness)
+        pIndex_1 = offspring_fitness.index(sorted_fitness[0])
+        pIndex_2 = offspring_fitness.index(sorted_fitness[1])
+        new_parent1 = offspring_trees[pIndex_1]
+        new_parent2 = offspring_trees[pIndex_2]
+        genetic_stage2(new_parent1, new_parent2, gen)
+
+
+genetic_stage2(parent1, parent2, 1)

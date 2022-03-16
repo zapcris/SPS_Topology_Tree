@@ -27,6 +27,15 @@ def set_edge_weight(graph, pos):
         graph[e[0]][e[1]][0]['weight'] = dist
 
 
+def convert_logical_spatial(graph, pos):
+    count_edges = Counter(graph.edges())
+    ### reliable edge list with distance and flow in dictionary####
+    edge_dict = [(u, v, {'weight': euclidean_dist(pos[u][0], pos[u][1], pos[v][0], pos[v][1]), 'Flow': value})
+                 for ((u, v), value) in count_edges.items()]
+    graph.remove_edges_from(graph.edges())
+    graph.add_edges_from(edge_dict)
+    return graph
+
 def create_weightedPI_tree(G, pos, PI_sequence):
     edge_list = []
     remain_node = []
