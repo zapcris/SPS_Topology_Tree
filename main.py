@@ -224,15 +224,10 @@ for i in range(1):
 for i in range(1):
     iter_class2 = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
     random_pop.append(next(iter_class2))
-#
 
-for i in range(1):
-    iter_class3 = iter(SpanningTreeIterator(L, minimum=True, ignore_nan=True))
-    random_pop.append(next(iter_class3))
-
-for i in range(1):
-    iter_class4 = iter(SpanningTreeIterator(L, minimum=False, ignore_nan=True))
-    random_pop.append(next(iter_class4))
+# for i in range(1):
+#     iter_class3 = iter(SpanningTreeIterator(L, minimum=True, ignore_nan=True))
+#     random_pop.append(next(iter_class3))
 
 #     create_weightedPI_tree(G, G_pos, Batch_sequence[PI_weight.index(max(PI_weight))]))
 for pseq in Batch_sequence:
@@ -251,7 +246,7 @@ for i, chr_Tree in enumerate(random_pop):
     plt.pause(0.05)
     plt.show()
 
-sys.exit()
+
 ##### calculate fitness function for random population
 cross_gen_fitness = []
 random_fitness = []
@@ -277,6 +272,7 @@ pIndex_2 = random_fitness.index(sorted_fitness[1])
 parent1 = random_pop[pIndex_1]
 parent2 = random_pop[pIndex_2]
 
+sys.exit()
 ##### crossover function#######
 ### convert the global map G to prufer suitable
 prufer_map = {}
