@@ -105,9 +105,9 @@ L = nx.MultiGraph()
 L.add_nodes_from(node_list)
 L.add_edges_from(raw_elist)
 
-# for i in range(1):
-#     iter_class1 = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
-#     random_pop.append(next(iter_class1))
+for i in range(1):
+    iter_class1 = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
+    random_pop.append(next(iter_class1))
 
 for i in range(1):
     iter_class2 = iter(SpanningTreeIterator(G, minimum=False, ignore_nan=True))
