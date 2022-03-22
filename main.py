@@ -40,8 +40,10 @@ def rand_index(gen):
 #          11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22),
 #          16: (12, 14), 17: (27, 25), 18: (21, 22), 19: (32, 31), 20: (26, 33)}
 
-
 G_pos = {1: (9, 4), 2: (18, 13), 3: (22, 8), 4: (18, 10), 5: (13, 0), 6: (15, 4), 7: (24, 22), 8: (12, 6), 9: (10, 11), 10: (14, 16), 11: (26, 15), 12: (30, 4), 13: (17, 17), 14: (0, 2), 15: (19, 24), 16: (22, 12), 17: (26, 20), 19: (23, 33), 20: (27, 28)}
+
+
+
 
 Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
                   [1, 2, 7, 3, 5, 6, 8, 9, 13, 15, 19, 20],
@@ -148,15 +150,18 @@ time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
-    random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight))
+    random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight,pos))
     time.sleep(0.05)
     # print(i, random_fitness[i])
 
 cross_gen_fitness.append(random_fitness)
+
 # print(random_pop[20].edges())
 ## Choose the fittest spanning tree####
 
-print("Fitness values for population", random_fitness)
+print("TREE Fitness values for population", random_fitness)
+print("Euclidean Fitness values for population", random_fitness)
+sys.exit()
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
