@@ -20,8 +20,8 @@ def fitness_function(T, batch_list, PI_weight,pos,Qty):
         #PI_cost.append(round(cost * (PI_weight[i] / 100)))
         PI_cost.append(cost) ## new fitness is just length
         EU_cost.append(round(cost2 * (PI_weight[i] / 100)))
-        fitness = stochastic_throughput(batch_list, pos, Qty, PI_cost)
+        fitness1 = stochastic_throughput(batch_list, pos, Qty, PI_cost)
 
     batch_tree_cost = sum(PI_cost)
     batch_eu_cost = sum(EU_cost)
-    return fitness
+    return fitness1

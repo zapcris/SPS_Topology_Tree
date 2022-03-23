@@ -124,9 +124,9 @@ def stochastic_throughput(Batch_sequence, pos, Qty, len_graph):
     return batch_time, Batch_prod_time
 
 
-print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))
+#print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))
 
-sys.exit()
+
 "Calculate the throughput of the system"
 seq = [1, 5, 9, 10, 2, 11, 13, 15, 7, 20]
 len_graph = 2000  # length of the traversal in the graph
