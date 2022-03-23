@@ -48,6 +48,11 @@ for i in range(len(Qty_order)):
 
 print("weighted list for Product Instances:", PI_weight)
 
+len_graph = [100, 100 ,100, 100,100, 100, 100]
+
+#print(prod_efficiency(Batch_sequence, G_pos, PI_weight, len_graph))
+
+
 ## Start of the Spanning Tree solution to the problem#####
 
 
