@@ -127,7 +127,7 @@ for i, chr_Tree in enumerate(random_pop):
 ##### calculate fitness function for random population
 cross_gen_fitness = []
 random_fitness = []
-
+perf_fitness= []
 print("Taking a pause")
 time.sleep(1)  # Pause 1 seconds
 print("pause ended")
@@ -135,6 +135,7 @@ print("pause ended")
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
     f = fitness_function(chr_Tree, Batch_sequence, PI_weight,pos)
     random_fitness.append(f)
+    perf_fitness.append(prod_efficiency(Batch_sequence, pos, PI_weight, f))
 
     time.sleep(0.05)
     # print(i, random_fitness[i])
