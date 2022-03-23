@@ -12,6 +12,7 @@ from grid_map import *
 import EoN
 from production_performance import prod_efficiency
 
+
 def rand_index(gen):
     r1 = (random.randint(2, 6))
     r2 = (random.randint(6, 10))
@@ -133,9 +134,9 @@ time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
-    f = fitness_function(chr_Tree, Batch_sequence, PI_weight,pos)
-    random_fitness.append(f)
-    perf_fitness.append(prod_efficiency(Batch_sequence, pos, PI_weight, f))
+    fit_val = fitness_function(chr_Tree, Batch_sequence, PI_weight,pos)
+    random_fitness.append(fit_val[0])
+    perf_fitness.append(prod_efficiency(Batch_sequence, pos, Qty_order, fit_val[1]))
 
     time.sleep(0.05)
     # print(i, random_fitness[i])
@@ -149,7 +150,7 @@ print("TREE Fitness values for population", random_fitness)
 print("Euclidean Fitness values for population", random_fitness)
 print("Performance fitness of population", perf_fitness)
 
-sys.exit()
+
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
@@ -322,13 +323,13 @@ def genetic_stage2(parent1, parent2, gen):
         offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
 
     for i, (off_top,pos) in enumerate(zip(offspring_trees,off_pos)):
-        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos))
+        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos)[0])
 
     cross_gen_fitness.append(offspring_fitness)
     print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
     #if min(offspring_fitness) <= 2000 or gen >= 3:
-    if gen >= 3:
+    if gen >= 30:
         print("fitness of this generation", offspring_fitness)
         print("Recurssion Ended ")
 
@@ -347,7 +348,7 @@ def genetic_stage2(parent1, parent2, gen):
 
 genetic_stage2(parent1, parent2, 1)
 
-sys.exit()
+
 min_fit = 0
 gen_fit = 0
 for i, fit in enumerate(cross_gen_fitness):
