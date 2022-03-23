@@ -68,7 +68,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
     Batch_prod_time = sum(batch_time)
 
 
-    return batch_time, Batch_prod_time
+    return Batch_prod_time
 
 
 #print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))

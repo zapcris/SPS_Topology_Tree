@@ -133,7 +133,9 @@ time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
-    random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight,pos))
+    f = fitness_function(chr_Tree, Batch_sequence, PI_weight,pos)
+    random_fitness.append(f)
+
     time.sleep(0.05)
     # print(i, random_fitness[i])
 
