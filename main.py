@@ -16,6 +16,7 @@ import EoN
 #
 # sys.setrecursionlimit(1500)
 
+
 def rand_index(gen):
     r1 = (random.randint(2, 6))
     r2 = (random.randint(6, 10))
