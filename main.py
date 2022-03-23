@@ -147,7 +147,9 @@ cross_gen_fitness.append(random_fitness)
 
 print("TREE Fitness values for population", random_fitness)
 print("Euclidean Fitness values for population", random_fitness)
+print("Performance fitness of population", perf_fitness)
 
+sys.exit()
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])

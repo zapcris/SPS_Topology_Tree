@@ -31,8 +31,8 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
         edge_list.append(edges)
         edge_pos_list.append(edges_pos)
 
-    print(edge_list)
-    print(edge_pos_list)
+    #print(edge_list)
+    #print(edge_pos_list)
 
     multi_strng_list = []
 
@@ -42,16 +42,16 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
 
     # for i in multi_strng_list:
     #     print(i)
-    # #
-    num_crossings =[]
+    # # crossing is always zero in heirarchial tree graph
+    num_crossings = [0] * len(Batch_sequence)
     for multi_strng in multi_strng_list:
         c = 0
         for line1, line2 in combinations([line for line in multi_strng], 2):
-            if line1.crosses(line2):
-                print(line1.intersection(line2))
+            if line1.intersects(line2):
+                #print(line1.intersection(line2))
                 c += 1
-        num_crossings.append(c)
-    print(num_crossings)
+        #num_crossings.append(c)
+    print("no of crossings", num_crossings)
     vel_transport = 2  # speed of the transport robot
     process_time = 5  ## uniform process time required by workstations
 
@@ -62,7 +62,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
         ct_1st_prod = (num_workstations * process_time) + (gLen / vel_transport)  ## first product doesnot experience congestion
         ct_normal_product = process_time + (dist_lastedge / vel_transport)
         random_loss = cross * (random.randint(0, qty) * ct_normal_product)
-        print(random_loss)
+        #print(random_loss)
         total_cycle_time = ct_1st_prod + ((qty - 1) * ct_normal_product) + random_loss
         batch_time.append(total_cycle_time)
     Batch_prod_time = sum(batch_time)
