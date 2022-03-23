@@ -334,12 +334,13 @@ def genetic_stage2(parent1, parent2, gen):
         offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
 
     for i, (off_top,pos) in enumerate(zip(offspring_trees,off_pos)):
-        offspring_fitness.append(round(sum(fitness_function(off_top, Batch_sequence, PI_weight,pos))))
+        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos))
 
     cross_gen_fitness.append(offspring_fitness)
     print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
-    if min(offspring_fitness) <= 2000 or gen >= 3:
+    #if min(offspring_fitness) <= 2000 or gen >= 3:
+    if gen >= 3:
         print("fitness of this generation", offspring_fitness)
         print("Recurssion Ended ")
 
