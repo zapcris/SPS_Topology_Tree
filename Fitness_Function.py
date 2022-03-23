@@ -16,9 +16,10 @@ def fitness_function(T, batch_list, PI_weight,pos):
             cost2 += euclidean_dist(pos[batch_list[i][j]][0],pos[batch_list[i][j]][1],pos[batch_list[i][j+1]][0], pos[batch_list[i][j+1]][1])
 
 
-        PI_cost.append(round(cost * (PI_weight[i] / 100)))
+        #PI_cost.append(round(cost * (PI_weight[i] / 100)))
+        PI_cost.append(cost)
         EU_cost.append(round(cost2 * (PI_weight[i] / 100)))
 
     batch_tree_cost = sum(PI_cost)
     batch_eu_cost = sum(EU_cost)
-    return batch_tree_cost, batch_eu_cost   # ,PI_cost
+    return PI_cost # batch_eu_cost   # ,PI_cost

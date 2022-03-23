@@ -161,7 +161,7 @@ cross_gen_fitness.append(random_fitness)
 
 print("TREE Fitness values for population", random_fitness)
 print("Euclidean Fitness values for population", random_fitness)
-sys.exit()
+
 sorted_fitness = sorted(random_fitness)
 pIndex_1 = random_fitness.index(sorted_fitness[0])
 pIndex_2 = random_fitness.index(sorted_fitness[1])
@@ -316,12 +316,14 @@ def genetic_stage2(parent1, parent2, gen):
 
     logical_off = [off1_tree, off2_tree]  # off3_tree, off4_tree]
     offspring_trees = []
+    off_pos =[]
     # print("pause started")
     # time.sleep(5)
     # print("resumed")
     ### Draw and calculate fitness function ####
     for i, off_tree in enumerate(logical_off):
         pos_off = draw_hierarchy_pos(off_tree, root=1, width=grid_size, height=grid_size)
+        off_pos.append(pos_off)
         # pos_off = EoN.hierarchy_pos(off_tree, root=1, width=40)
         plt.figure()
         plt.title(f"The plot belongs to offsrping {i + 1} in generation {gen} ")
@@ -331,13 +333,14 @@ def genetic_stage2(parent1, parent2, gen):
         plt.show()
         offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
 
-    for i, off_top in enumerate(offspring_trees):
-        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight))
+    for i, (off_top,pos) in enumerate(zip(offspring_trees,off_pos)):
+        offspring_fitness.append(round(sum(fitness_function(off_top, Batch_sequence, PI_weight,pos))))
 
     cross_gen_fitness.append(offspring_fitness)
     print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
-    if min(offspring_fitness) <= 2000 or gen >= 40:
+    if min(offspring_fitness) <= 2000 or gen >= 3:
+        print("fitness of this generation", offspring_fitness)
         print("Recurssion Ended ")
 
 
@@ -355,6 +358,7 @@ def genetic_stage2(parent1, parent2, gen):
 
 genetic_stage2(parent1, parent2, 1)
 
+sys.exit()
 min_fit = 0
 gen_fit = 0
 for i, fit in enumerate(cross_gen_fitness):
