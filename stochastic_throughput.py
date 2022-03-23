@@ -27,6 +27,9 @@ line4 = LineString([(4,0), (0,4)])
 if line1.intersects(line3):
     print("done")
 
+
+"Testing the edges "
+
 total_edges = MultiLineString([[(0,0), (5,5)],
                                 [(5,0), (0,5)],
                                 [(1,0), (5,4)],
@@ -40,3 +43,36 @@ for line1, line2 in combinations([line for line in total_edges],2):
         count += 1
 
 print(count)
+
+
+
+G_pos = {1: (10, 7), 2: (19, 13), 3: (21, 10), 4: (21, 17), 5: (13, 0),
+         6: (17, 3), 7: (21, 25), 8: (11, 4), 9: (15, 10), 10: (17, 19),
+         11: (28, 7), 12: (33, 12), 13: (24, 13), 14: (0, 3), 15: (25, 22),
+         17: (27, 25), 19: (32, 31), 20: (26, 33)}
+
+Batch_sequence = [1, 5, 9, 10, 2, 11, 13, 15, 7, 20]
+
+
+edge_list = []
+edge_pos_list = []
+for i in range(len(Batch_sequence)-1):
+    edge = [Batch_sequence[i], Batch_sequence[i+1]]
+    edge_pos = [G_pos[Batch_sequence[i]], G_pos[Batch_sequence[i+1]]]
+    edge_list.append(edge)
+    edge_pos_list.append(edge_pos)
+
+print(edge_list)
+print(edge_pos_list)
+
+new_edges = MultiLineString(edge_pos_list)
+
+c = 0
+
+for line1, line2 in combinations([line for line in new_edges],2):
+
+    if line1.intersects(line2):
+        print(line1.intersection(line2))
+        c += 1
+
+print(c)
