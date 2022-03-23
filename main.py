@@ -15,6 +15,7 @@ import EoN
 # recursion_limit = sys.getrecursionlimit()
 #
 # sys.setrecursionlimit(1500)
+from stochastic_throughput import stochastic_throughput
 
 
 def rand_index(gen):
@@ -150,7 +151,7 @@ time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
-    random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight, pos))
+    random_fitness.append(fitness_function(chr_Tree, Batch_sequence, PI_weight, pos,Qty_order))
     time.sleep(0.05)
     # print(i, random_fitness[i])
 
@@ -335,14 +336,14 @@ def genetic_stage2(parent1, parent2, gen):
 
 
     for i, (off_top,pos) in enumerate(zip(offspring_trees, off_pos)):
-        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos))
+        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos,Qty_order))
 
     cross_gen_fitness.append(offspring_fitness)
     print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
     #if min(sum(offspring_fitness)) <= 2000 or gen >= 2:
     if gen >= 1:
-        print(offspring_fitness)
+        #print(offspring_fitness)
         print("Recurssion Ended ")
 
 
@@ -376,6 +377,8 @@ if gen_fit <= 1:
         f" Fittest value found is : {min_fit} in initial population chromosome no: {(random_fitness.index(min_fit)) + 1}")
 else:
     print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
+
+
 
 #### GRAPH TO GRID MAPP#####
 

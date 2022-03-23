@@ -68,7 +68,7 @@ Batch = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
 
 Qty_order = [10, 30, 50, 20, 60, 20, 40]
 fitness_len = [100, 100, 100, 100, 100, 100, 100]
-def find_graph_crossing(Batch_sequence, pos, Qty,len_graph):
+def stochastic_throughput(Batch_sequence, pos, Qty, len_graph):
 
     #print(Batch_sequence)
     edge_list = []
@@ -124,7 +124,7 @@ def find_graph_crossing(Batch_sequence, pos, Qty,len_graph):
     return batch_time, Batch_prod_time
 
 
-print(find_graph_crossing(Batch,G_pos,Qty_order,fitness_len))
+print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))
 
 sys.exit()
 "Calculate the throughput of the system"
