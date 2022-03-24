@@ -49,11 +49,11 @@ def plot_throughput(num, prod_1_time, prod_normal_time, qty, num_cross):
             }
     # Plot it!
     plt.plot(steps, throughput)
-    plt.title(f'Product variant {num+1} throughput with {num_cross} crossings dnd total time {total_prod_time}')
-    plt.pause(0.05)
+    plt.title(f'Product variant {num+1} throughput with total prod time : {total_prod_time} for {qty} qty')
     plt.xlabel('unit time', fontdict=font)
     plt.ylabel('Throughput', fontdict=font)
-
+    plt.savefig(f'charts/throughput/perf_product variant {num+1}')
+    plt.pause(0.05)
     plt.clf()
     return total_prod_time
 
@@ -93,7 +93,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
                 # print(line1.intersection(line2))
                 c += 1
                 d = 0
-        num_crossings.append(c)
+        num_crossings.append(d) ### For tree topology there is no crossings
     print("no of crossings", num_crossings)
     vel_transport = 2  # speed of the transport robot
     process_time = 5  ## uniform process time required by workstations

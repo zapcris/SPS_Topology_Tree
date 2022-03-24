@@ -112,6 +112,7 @@ for pseq in Batch_sequence:
     random_pop.append(create_weightedPI_tree(G, G_pos, pseq))
     # print("The new batch sequenc:", pseq)
 
+
 ##Draw hierarchy tree psoitions all population###
 tree_pos = []
 for i, chr_Tree in enumerate(random_pop):
@@ -126,6 +127,7 @@ for i, chr_Tree in enumerate(random_pop):
     plt.pause(0.05)
     plt.show()
 
+
 ##### calculate fitness function for random population
 cross_gen_fitness = []
 random_fitness = []
@@ -134,10 +136,12 @@ print("Taking a pause")
 time.sleep(1)  # Pause 1 seconds
 print("pause ended")
 
+topology_htable = dict()
 for i, (chr_Tree, pos) in enumerate(zip(random_pop, tree_pos)):
     fit_val = fitness_function(chr_Tree, Batch_sequence, PI_weight,pos)
     random_fitness.append(fit_val[0])
-    perf_fitness.append(prod_efficiency(Batch_sequence, pos, Qty_order, fit_val[1]))
+    topology_htable.update({fit_val[0]: (fit_val[1], fit_val[2])})
+
 
     time.sleep(0.05)
     # print(i, random_fitness[i])
@@ -324,13 +328,15 @@ def genetic_stage2(parent1, parent2, gen):
         offspring_trees.append(convert_logical_spatial(off_tree, pos_off))
 
     for i, (off_top,pos) in enumerate(zip(offspring_trees,off_pos)):
-        offspring_fitness.append(fitness_function(off_top, Batch_sequence, PI_weight,pos)[0])
+        fit_off = fitness_function(off_top, Batch_sequence, PI_weight,pos)
+        offspring_fitness.append(fit_off[0])
+        topology_htable.update({fit_off[0]: (fit_off[1], fit_off[2])})
 
     cross_gen_fitness.append(offspring_fitness)
     print(f'The fitness list of generation {gen} is {offspring_fitness}')
 
     #if min(offspring_fitness) <= 2000 or gen >= 3:
-    if gen >= 30:
+    if gen >= 2:
         print("fitness of this generation", offspring_fitness)
         print("Recurssion Ended ")
 
@@ -366,6 +372,11 @@ if gen_fit <= 1:
         f" Fittest value found is : {min_fit} in initial population chromosome no: {(random_fitness.index(min_fit)) + 1}")
 else:
     print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
+
+"Find the perfromance of the fittest topology"
+#perf_fitness.append(prod_efficiency(Batch_sequence, pos, Qty_order, fit_val[1]))
+print(topology_htable[min_fit])
+print(prod_efficiency(Batch_sequence, topology_htable[min_fit][1], Qty_order, topology_htable[min_fit][0]))
 
 sys.exit()
 #### GRAPH TO GRID MAPP#####

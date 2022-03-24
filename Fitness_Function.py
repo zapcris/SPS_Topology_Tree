@@ -22,4 +22,4 @@ def fitness_function(T, batch_list, PI_weight,pos):
 
     batch_tree_cost = sum(PI_cost)
     batch_eu_cost = sum(EU_cost)
-    return batch_tree_cost, PI_cost # batch_eu_cost   # ,PI_cost
+    return batch_tree_cost, PI_cost, pos # batch_eu_cost   # ,PI_cost
