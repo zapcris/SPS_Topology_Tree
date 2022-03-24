@@ -93,7 +93,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
                 # print(line1.intersection(line2))
                 c += 1
                 d = 0
-        num_crossings.append(d) ### For tree topology there is no crossings
+        num_crossings.append(c) ### For tree topology there is no crossings
     print("no of crossings", num_crossings)
     vel_transport = 2  # speed of the transport robot
     process_time = 5  ## uniform process time required by workstations
