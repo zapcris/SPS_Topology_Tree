@@ -1,6 +1,7 @@
 import math
 import sys
 import random
+import numpy as np
 import networkx as nx
 from matplotlib import pyplot as plt
 from shapely.geometry import MultiLineString, LineString
@@ -10,14 +11,55 @@ from itertools import combinations
 def euclidean_dist(x1, y1, x2, y2):
     dist = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2) * 1.0)
     return round(dist)
+
+
 random.seed(1033)
 
+def plot_throughput(num, prod_1_time, prod_normal_time, qty, num_cross):
+    # Loop through each time step.
+    n_steps = 1000 # number of unit time
+    throughput = np.zeros(n_steps)
+    loss= 0.0
+    prd_cycle_time = prod_normal_time
+    cumulative_throuput = []
+    total_prod_time = 0
 
+    for i in range(1, n_steps):
+        ###Every cycle time induce a random crossing congestion
+        if (i % prd_cycle_time == 0):
+            loss = random.randint(0,num_cross) * 1 ### every crossing induces a single unit time loss
+            prd_cycle_time = prod_normal_time + loss
+
+        if i >= 1 and i <= prod_1_time:
+            throughput[i] = 1 / (prod_1_time + loss)
+            cumulative_throuput.append(throughput[i])
+        else:
+            throughput[i] = 1 / prd_cycle_time
+            cumulative_throuput.append(throughput[i])
+
+        if sum(cumulative_throuput) >= qty and sum(cumulative_throuput) <= qty + 0.5:
+            total_prod_time = i
+
+
+    steps = np.arange(0, n_steps, 1)
+    font = {'family': 'serif',
+            'color': 'darkred',
+            'weight': 'normal',
+            'size': 16,
+            }
+    # Plot it!
+    plt.plot(steps, throughput)
+    plt.title(f'Product variant {num+1} throughput with {num_cross} crossings dnd total time {total_prod_time}')
+    plt.pause(0.05)
+    plt.xlabel('unit time', fontdict=font)
+    plt.ylabel('Throughput', fontdict=font)
+
+    plt.clf()
+    return total_prod_time
 
 
 def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
-
-    #print(Batch_sequence)
+    # print(Batch_sequence)
     edge_list = []
     edge_pos_list = []
     for i in range(len(Batch_sequence)):
@@ -31,8 +73,8 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
         edge_list.append(edges)
         edge_pos_list.append(edges_pos)
 
-    #print(edge_list)
-    #print(edge_pos_list)
+    # print(edge_list)
+    # print(edge_pos_list)
 
     multi_strng_list = []
 
@@ -43,35 +85,71 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
     # for i in multi_strng_list:
     #     print(i)
     # # crossing is always zero in heirarchial tree graph
-    num_crossings = [0] * len(Batch_sequence)
+    num_crossings = []
     for multi_strng in multi_strng_list:
         c = 0
         for line1, line2 in combinations([line for line in multi_strng], 2):
             if line1.intersects(line2):
-                #print(line1.intersection(line2))
+                # print(line1.intersection(line2))
                 c += 1
-        #num_crossings.append(c)
+                d = 0
+        num_crossings.append(c)
     print("no of crossings", num_crossings)
     vel_transport = 2  # speed of the transport robot
     process_time = 5  ## uniform process time required by workstations
 
-    batch_time = []
-    for seq, gLen, qty, cross in zip(Batch_sequence, len_graph, Qty, num_crossings):
+    PI_arr_pt = []
+    throughput = []
+    for i, (seq, gLen, qty, cross) in enumerate(zip(Batch_sequence, len_graph, Qty, num_crossings)):
         num_workstations = len(seq)
         dist_lastedge = euclidean_dist(pos[seq[-2]][0], pos[seq[-2]][1], pos[seq[-1]][0], pos[seq[-1]][1])
-        ct_1st_prod = (num_workstations * process_time) + (gLen / vel_transport)  ## first product doesnot experience congestion
-        ct_normal_product = process_time + (dist_lastedge / vel_transport)
-        random_loss = cross * (random.randint(0, qty) * ct_normal_product)
+        ct_1st_ptime = (num_workstations * process_time) + (
+                    gLen / vel_transport)  ## first product doesnot experience congestion
+        ct_normal_time = process_time ## (dist_lastedge / vel_transport)
+        PI_prod_time = plot_throughput(i,ct_1st_ptime, ct_normal_time, qty,cross)
+        #random_loss = cross * (random.randint(0, qty) * ct_normal_time)
         #print(random_loss)
-        total_cycle_time = ct_1st_prod + ((qty - 1) * ct_normal_product) + random_loss
-        batch_time.append(total_cycle_time)
-    Batch_prod_time = sum(batch_time)
+        ###PI_prod_time = ct_1st_ptime + ((qty - 1) * ct_normal_time) + random_loss - old measurement of stocashtic loss
+        PI_arr_pt.append(PI_prod_time)
+    Batch_prod_time = sum(PI_arr_pt)
+
+    # n_steps = 100
+    # prd_cycle_time = PI_arr_pt[0] / Qty[0]
+    # throughput = np.zeros(n_steps)
+    #
+    # # Loop through each time step.
+    # flip = []
+    # for i in range(8):
+    # #     # Flip a coin.
+    #     f= np.random.rand()
+    #     flip.append(f)
+    # print(sum(flip))
+    #
+    #
+    # font = {'family': 'serif',
+    #         'color': 'darkred',
+    #         'weight': 'normal',
+    #         'size': 16,
+    #         }
+    # for i in range(1, n_steps):
+    #     if i >=1 and i <= 35:
+    #         throughput[i] = 1 / 35
+    #     else:
+    #         throughput[i] = 1 / prd_cycle_time
+    # steps = np.arange(0, n_steps, 1)
+    # # Plot it!
+    # plt.plot(steps, throughput)
+    # plt.title('product instance 1 throughput')
+    # plt.xlabel('unit time', fontdict=font)
+    # plt.ylabel('Throughput', fontdict=font)
+    #
+    # plt.show()
+
+    return Batch_prod_time, PI_arr_pt
 
 
-    return Batch_prod_time
 
-
-#print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))
+# print(stochastic_throughput(Batch, G_pos, Qty_order, fitness_len))
 
 #
 # "Calculate the throughput of the system"
