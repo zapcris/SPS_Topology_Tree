@@ -13,6 +13,13 @@ import EoN
 from production_performance import prod_efficiency
 
 
+flip = []
+for i in range(8):
+    # Flip a coin.
+    f = np.random.rand()
+    flip.append(f)
+print(sum(flip))
+sys.exit()
 def rand_index(gen):
     r1 = (random.randint(2, 6))
     r2 = (random.randint(6, 10))
@@ -366,6 +373,7 @@ if gen_fit <= 1:
 else:
     print(f" Fittest value found is : {min_fit} in generation {gen_fit}")
 
+sys.exit()
 #### GRAPH TO GRID MAPP#####
 
 matrix = np.array(
