@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from shapely.geometry import MultiLineString, LineString
 from itertools import combinations
 
-
+Batch_process_times = [5, 8, 10, 12, 7, 9, 13]
 def euclidean_dist(x1, y1, x2, y2):
     dist = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2) * 1.0)
     return round(dist)
@@ -25,6 +25,7 @@ def get_cmap(n, name='hsv'):
 
 def plot_throughput(num, prod_1_time, prod_normal_time, qty, num_cross):
     # Loop through each time step.
+    # It is important to simulate each variant before scheduling a total batch
     n_steps = 1000  # number of unit time
     throughput = np.zeros(n_steps)
     loss = 0.0
@@ -118,14 +119,15 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
         num_crossings.append(0)
     print("no of crossings", num_crossings)
     vel_transport = 2  # speed of the transport robot
-    process_time = 5  ## uniform process time required by workstations
+    #process_time = 5  ## uniform process time required by workstations
 
     PI_arr_pt = []
     PI_arr_thr = []
     PI_arr_1sTime = []
     PI_arr_idealT = []
     throughput = []
-    for i, (seq, gLen, qty, cross) in enumerate(zip(Batch_sequence, len_graph, Qty, num_crossings)):
+    ## Find throughput for individual product variants
+    for i, (seq, gLen, qty, cross,process_time) in enumerate(zip(Batch_sequence, len_graph, Qty, num_crossings,Batch_process_times)):
         num_workstations = len(seq)
         dist_lastedge = euclidean_dist(pos[seq[-2]][0], pos[seq[-2]][1], pos[seq[-1]][0], pos[seq[-1]][1])
         ct_1st_ptime = (num_workstations * process_time) + (
@@ -147,7 +149,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
     print("production ideal time array", PI_arr_idealT)
 
     ### Plot the cumulative graph with coinciding the
-    prod_span = 1600
+    prod_span = 3000
 
     # for i in range(len(cumulative_throughput)):
     #     cumulative_throughput[i] = random.randint(1,35)
@@ -160,27 +162,29 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
     offset = 1
     for i in range(len(Batch_sequence)):
         cumulative_throughput = np.zeros(prod_span)
-
+        process_time = Batch_process_times
         if i == 0:
             offset += 0
         else:
 
-            coeff_pTime = PI_arr_idealT[i - 1] / process_time
+            coeff_pTime = PI_arr_idealT[i - 1] / process_time[i-1]
             #print("the calculated coeff prodcut", i+1, coeff_pTime)
-            actual_processtime = float(PI_arr_pt[i - 1]) / coeff_pTime
+            #actual_processtime = float(PI_arr_pt[i - 1]) / coeff_pTime
+            actual_processtime = process_time[i-1] ## for tree topology
             print(f"the actual process time of product {i+1} is {coeff_pTime}")
-            offset += round(Qty[i - 1] * process_time) ## for tree topology its is original process time
+            offset += round(Qty[i - 1] * actual_processtime) ## for tree topology its is original process time
             # print(f"Start time of previous product was {PI_arr_pt[i-1]} product and time to produce 1st sample of current product {PI_arr_1sTime[i]}")
+        if i == len(Batch_sequence)-1:
+            finish_time = PI_arr_pt[i] + offset
         print("product with start and stop index", i + 1, offset, PI_arr_pt[i] + offset)
-
         cumulative_throughput[offset:PI_arr_pt[i] + offset] = PI_arr_thr[i]  # [1:PI_arr_pt[i]]
-        plt.plot(prod_steps, cumulative_throughput, color=colors[i], label=f'Product {i + 1}')
+        plt.plot(prod_steps, cumulative_throughput, color=colors[i], label=f'P{i + 1} for qty-{Qty[i]} CT-{process_time[i]}')
         # plt.pause(0.05)
 
     # Naming the x-axis, y-axis and the whole graph
     plt.xlabel("Unit Time")
     plt.ylabel("Throughput")
-    plt.title("Cumulative Production Stat")
+    plt.title(f"Batch Production finished in {finish_time} time")
 
     # Adding legend, which helps us recognize the curve according to it's color
     plt.legend()

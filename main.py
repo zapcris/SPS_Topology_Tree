@@ -43,6 +43,8 @@ Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
 
 
 Qty_order = [10, 30, 50, 20, 60, 20, 40]
+#Qty_order = [100,100,100,100,100,100,100]
+#Qty_order = [1, 1, 1, 1, 1, 1, 1]
 
 PI_weight = []
 for i in range(len(Qty_order)):
