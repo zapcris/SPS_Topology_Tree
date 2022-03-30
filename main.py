@@ -5,7 +5,8 @@ import time
 from random import randint
 import matplotlib.pyplot as plt
 from networkx.algorithms import SpanningTreeIterator
-from Draw_heirachial_graph import draw_hierarchy_pos
+from networkx.drawing.nx_agraph import write_dot, graphviz_layout
+from Draw_heirachial_graph import draw_hierarchy_pos, hierarchy_pos2, hierarchy_pos3
 from Fitness_Function import fitness_function
 from Func_weighted_spanning_tree import *
 from grid_map import *
@@ -93,9 +94,9 @@ print("Start of the Genetic Algorithm")
 random_pop = []
 grid_size = 28
 
-L = nx.MultiGraph()
-L.add_nodes_from(node_list)
-L.add_edges_from(raw_elist)
+# L = nx.MultiGraph()
+# L.add_nodes_from(node_list)
+# L.add_edges_from(raw_elist)
 
 for i in range(1):
     iter_class1 = iter(SpanningTreeIterator(G, minimum=True, ignore_nan=True))
@@ -120,13 +121,17 @@ tree_pos = []
 for i, chr_Tree in enumerate(random_pop):
     # pos= G_pos
     pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
-    # pos = EoN.hierarchy_pos(chr_Tree, root=1, width=40)
+    #pos = EoN.hierarchy_pos(chr_Tree, root=1, width=40)
+    #pos = hierarchy_pos3(chr_Tree,root=1,width=grid_size,xcenter=14)
+    #pos = graphviz_layout(G, prog='dot')
     tree_pos.append(pos)
     plt.figure()
     plt.title(f"The plot belongs to initial population {i + 1} ")
     nx.draw(chr_Tree, pos, with_labels=True)
-    plt.grid(True)
-    plt.pause(0.05)
+
+    #plt.grid(True)
+    plt.grid(which='major', axis='both', linestyle='-')
+    #plt.pause(0.05)
     plt.show()
 
 
@@ -380,7 +385,18 @@ else:
 print(topology_htable[min_fit])
 print(prod_efficiency(Batch_sequence, topology_htable[min_fit][1], Qty_order, topology_htable[min_fit][0]))
 
+
 sys.exit()
+Grid_graph = nx.grid_2d_graph(50,50)
+
+plt.figure(figsize=(100,100))
+pos = {(x,y):(y,-x) for x,y in Grid_graph.nodes()}
+nx.draw(Grid_graph, pos=pos,
+        node_color='lightgreen',
+        with_labels=True,
+        node_size=600)
+plt.savefig(f'charts/throughput/gridmap')
+
 #### GRAPH TO GRID MAPP#####
 
 matrix = np.array(

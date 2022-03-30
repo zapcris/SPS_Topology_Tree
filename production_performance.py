@@ -191,6 +191,7 @@ def prod_efficiency(Batch_sequence, pos, Qty, len_graph):
 
     # To load the display window
     plt.savefig(f'charts/throughput/Cumulative production')
+    plt.clf()
 
     return Batch_prod_time, PI_arr_pt
 
