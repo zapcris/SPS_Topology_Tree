@@ -19,6 +19,7 @@ def fitness_function(T, batch_list, PI_weight,pos):
     Weighted_T.add_nodes_from(T.nodes())
     Weighted_T.add_edges_from(edge_dict)
     #print(Weighted_T.edges.data())
+
     for i in range(len(batch_list)):
         cost = 0.0
         cost2 = 0.0

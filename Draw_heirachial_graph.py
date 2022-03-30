@@ -33,7 +33,7 @@ def draw_hierarchy_pos(G, root, levels=None, width=1., height=1.):
         neighbors = G.neighbors(node)
         for neighbor in neighbors:
             if not neighbor == parent:
-                pos = make_pos(pos, neighbor, currentLevel + 1, node, (vert_loc - vert_gap-2))
+                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc - vert_gap)
         return pos
 
     if levels is None:
