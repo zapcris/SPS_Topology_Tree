@@ -120,8 +120,8 @@ for pseq in Batch_sequence:
 tree_pos = []
 for i, chr_Tree in enumerate(random_pop):
     # pos= G_pos
-    #pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
-    pos = EoN.hierarchy_pos(chr_Tree, root=1, width=grid_size)
+    pos = draw_hierarchy_pos(chr_Tree, root=1, width=grid_size, height=grid_size)
+    #pos = EoN.hierarchy_pos(chr_Tree, root=1, width=grid_size)
     #pos = hierarchy_pos3(chr_Tree,root=1,width=grid_size,xcenter=14)
     #pos = graphviz_layout(G, prog='dot')
     tree_pos.append(pos)
@@ -323,9 +323,9 @@ def genetic_stage2(parent1, parent2, gen):
     # print("resumed")
     ### Draw and calculate fitness function ####
     for i, off_tree in enumerate(logical_off):
-        #pos_off = draw_hierarchy_pos(off_tree, root=1, width=grid_size, height=grid_size)
+        pos_off = draw_hierarchy_pos(off_tree, root=1, width=grid_size, height=grid_size)
 
-        pos_off = EoN.hierarchy_pos(chr_Tree, root=1, width=grid_size)
+        #pos_off = EoN.hierarchy_pos(off_tree, root=1, width=grid_size)
         off_pos.append(pos_off)
         # pos_off = EoN.hierarchy_pos(off_tree, root=1, width=40)
         plt.figure()
