@@ -10,6 +10,7 @@ from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from Draw_heirachial_graph import draw_hierarchy_pos, hierarchy_pos2, hierarchy_pos3
 from Fitness_Function import fitness_function
 from Func_weighted_spanning_tree import *
+from check_topology import checkBusTopology, addEdge, checkRingTopology
 from grid_map import *
 import EoN
 from production_performance import prod_efficiency
@@ -42,7 +43,8 @@ Batch_sequence = [[1, 5, 9, 10, 2, 11, 13, 15, 7, 20],
                   [1, 6, 8, 6, 3, 12, 4, 10, 15, 17, 20],
                   [1, 14, 8, 6, 13, 2, 4, 10, 15, 17, 20]]
 
-
+def max_value(input_list):
+    return max([sublist[-1] for sublist in input_list])
 
 Qty_order = [10, 30, 50, 20, 60, 20, 40]
 #Qty_order = [100,100,100,100,100,100,100]
@@ -74,6 +76,20 @@ for i in range(len(Batch_sequence)):
         raw_elist.append(edge)
         if not edge in edge_list:
             edge_list.append(edge)  #### edge list of non repeating edges
+
+
+#### Check the Bus and Ring topology###
+V = max_value(Batch_sequence)
+E = V-1
+adj1 = [[] for i in range(V+1)]
+for edge in edge_list:
+    addEdge(adj1, edge[0], edge[1])
+
+
+checkBusTopology(adj1, V, E)
+
+checkRingTopology(adj1, V, E)
+
 
 ### Generate a graph from the Genetic STage 1 Force directed output####
 G = nx.MultiGraph()
@@ -394,15 +410,14 @@ for fit in topology_htable:
     k = fit
     top_keys.append(k)
 
-def max_value(input_list):
-    return max([sublist[-1] for sublist in input_list])
+
 topologies = []
 
 
 for fit_val in top_keys:
     #topologies.append(topology_htable[fit_val][1])
     top_dict = topology_htable[fit_val][1]
-    top = [0] * max_value(Batch_sequence)
+    top = [None] * max_value(Batch_sequence)
     for key, value in top_dict.items():
         top[key-1] = value
     topologies.append(top)
