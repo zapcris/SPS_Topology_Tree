@@ -1,4 +1,5 @@
-import random
+import pymongo
+import json
 import random
 import sys
 import time
@@ -384,11 +385,44 @@ else:
 
 "Find the perfromance of the fittest topology"
 #perf_fitness.append(prod_efficiency(Batch_sequence, pos, Qty_order, fit_val[1]))
-print(topology_htable[min_fit])
+print("Fittest topology is", topology_htable[min_fit][1])
 print(prod_efficiency(Batch_sequence, topology_htable[min_fit][1], Qty_order, topology_htable[min_fit][0]))
 
+#print("Topology hash table" ,topology_htable)
+top_keys = []
+for fit in topology_htable:
+    k = fit
+    top_keys.append(k)
 
+def max_value(input_list):
+    return max([sublist[-1] for sublist in input_list])
+topologies = []
+
+
+for fit_val in top_keys:
+    #topologies.append(topology_htable[fit_val][1])
+    top_dict = topology_htable[fit_val][1]
+    top = [0] * max_value(Batch_sequence)
+    for key, value in top_dict.items():
+        top[key-1] = value
+    topologies.append(top)
+
+#print(topologies)
+
+"Connect to MongoDB"
+client = pymongo.MongoClient("mongodb://localhost:27017")
+db = client["Topology_Manager"]
+collection = db["Tree_Topologies"]
+
+coll_dict = { "Batch_Sequence": Batch_sequence, "Production_order": Qty_order, "Statistical_Fitness": top_keys, "Topologies": topologies}
+#coll_dict = {"Topologies": topologies}
+
+x = collection.insert_one(coll_dict)
 sys.exit()
+
+
+
+
 Grid_graph = nx.grid_2d_graph(50,50)
 
 plt.figure(figsize=(100,100))
