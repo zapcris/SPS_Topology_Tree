@@ -422,6 +422,9 @@ for fit_val in top_keys:
         top[key-1] = value
     topologies.append(top)
 
+optimized_top = [None] * max_value(Batch_sequence)
+for key, value in topology_htable[min_fit][1].items():
+    optimized_top[key-1] = value
 #print(topologies)
 
 "Connect to MongoDB"
@@ -429,7 +432,8 @@ client = pymongo.MongoClient("mongodb://localhost:27017")
 db = client["Topology_Manager"]
 collection = db["Tree_Topologies"]
 
-coll_dict = { "Batch_Sequence": Batch_sequence, "Production_order": Qty_order, "Statistical_Fitness": top_keys, "Topologies": topologies}
+coll_dict = { "Batch_Sequence": Batch_sequence, "Production_order": Qty_order, "Statistical_Fitness": top_keys,
+              "Topologies": topologies, "Optimized_Topology": optimized_top}
 #coll_dict = {"Topologies": topologies}
 
 x = collection.insert_one(coll_dict)
